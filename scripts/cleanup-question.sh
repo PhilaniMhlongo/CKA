@@ -65,7 +65,7 @@ INPUT="$*"
 
 if [[ "$INPUT" == "all" ]]; then
   echo "Cleaning up all questions..."
-  for i in $(seq 1 55); do
+  for i in $(seq 1 72); do
     QUESTION_DIR=$(resolve_question_dir "$i")
     [[ -n "$QUESTION_DIR" ]] && run_cleanup "$QUESTION_DIR" || true
   done
