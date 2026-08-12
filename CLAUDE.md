@@ -39,7 +39,7 @@ When editing or adding a question, keep this five-file shape and the PASS/FAIL c
 ## Adding a new question
 
 New questions are numbered sequentially (`Question-N-Short-Topic-Name/`). When adding one, also update:
-- The `seq 1 N` upper bound in `scripts/validate-question.sh` and `scripts/cleanup-question.sh` (currently `22` in both `all` loops — bump this or the new question will be silently skipped by `all`).
+- The `seq 1 N` upper bound in `scripts/validate-question.sh` and `scripts/cleanup-question.sh` (currently `55` in both `all` loops — bump this or the new question will be silently skipped by `all`).
 - The topics table in `README.md`.
 
 ## Working directories used by labs
