@@ -1,4 +1,4 @@
-# Question: Helm Release Lifecycle (Cluster Architecture - harder than exam)
+# Question: Helm Release Lifecycle (Cluster Architecture)
 
 # Task
 # 1. Add the Bitnami repo (https://charts.bitnami.com/bitnami) and update it

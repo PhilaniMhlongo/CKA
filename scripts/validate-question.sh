@@ -87,7 +87,7 @@ if [[ "$INPUT" == "all" ]]; then
   echo -e "${CYAN}|        CKA Practice Questions - Full Validation        |${NC}"
   echo -e "${CYAN}+==========================================================+${NC}"
 
-  for i in $(seq 1 72); do
+  for i in $(seq 1 74); do
     QUESTION_DIR=$(resolve_question_dir "$i")
     if [[ -z "$QUESTION_DIR" ]]; then
       continue

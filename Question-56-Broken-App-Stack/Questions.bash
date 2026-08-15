@@ -1,4 +1,4 @@
-# Question: Broken App Stack (Troubleshooting - harder than exam)
+# Question: Broken App Stack (Troubleshooting)
 
 # In namespace d8f3b6a1c2e4-broken-stack, the deployment web-stack and its
 # service web-stack-svc were rolled out, but users report the app is
@@ -10,8 +10,6 @@
 #   1. The deployment has 2 ready replicas (use a real nginx image, e.g. nginx:1.25)
 #   2. The service has healthy endpoints
 # Do not delete the deployment or the service - fix them in place.
-
-# Hints (only if stuck): think image, probe, selector, port.
 
 # Documentation Reference
 # Tasks -> Monitoring, Logging, and Debugging -> Debug Services

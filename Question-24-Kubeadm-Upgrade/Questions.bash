@@ -1,4 +1,5 @@
 # Question: Cluster upgrade with kubeadm
+# REQUIRES: control-plane node access (kubeadm cluster, e.g. Killercoda)
 
 # Context:
 # The controlplane node is running an older patch release than the rest of the

@@ -1,4 +1,4 @@
-# Question: Kubelet Configuration - maxPods (Cluster Architecture - harder than exam)
+# Question: Kubelet Configuration - maxPods (Cluster Architecture)
 # REQUIRES: node access with root (kubeadm cluster, e.g. Killercoda)
 
 # The platform team wants to cap this node at 40 pods.

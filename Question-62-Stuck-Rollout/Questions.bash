@@ -1,4 +1,4 @@
-# Question: Stuck Rollout - Unschedulable Pods (Troubleshooting - harder than exam)
+# Question: Stuck Rollout - Unschedulable Pods (Troubleshooting)
 
 # In namespace d8f3b6a1c2e4-rollout, the deployment stuck-app has been at
 # 0/3 for twenty minutes. All pods are Pending. There are TWO independent

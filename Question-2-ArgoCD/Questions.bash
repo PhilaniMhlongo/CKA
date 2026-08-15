@@ -10,7 +10,6 @@
 # 5. Save the generated YAML manifest to /root/argo-helm.yaml
 
 # Note: The `--skip-crds` Helm flag does NOT reliably prevent CRD installation for all charts.
-# Some charts (like argo-cd) bundle CRDs as regular templates controlled by a chart value. 
-# Hint search for the crds value in the argo-cd chart and set it to false to prevent CRD installation.
+# Some charts (like argo-cd) bundle CRDs as regular templates controlled by a chart value.
 
 # Video link - https://youtu.be/e0YGRSjb8CU

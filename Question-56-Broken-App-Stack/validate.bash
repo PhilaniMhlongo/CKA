@@ -24,7 +24,7 @@ echo " Validating Question 56: Broken App Stack"
 echo "============================================"
 
 check "Deployment no longer uses the bogus nginx:1.99-fake image" \
-  bash -c '! kubectl get deployment web-stack -n d8f3b6a1c2e4-broken-stack -o jsonpath="{.spec.template.spec.containers[0].image}" | grep -q "1.99-fake"'
+  bash -c 'kubectl get --raw=/version >/dev/null 2>&1 && ! kubectl get deployment web-stack -n d8f3b6a1c2e4-broken-stack -o jsonpath="{.spec.template.spec.containers[0].image}" | grep -q "1.99-fake"'
 
 check "Deployment has 2 ready replicas" \
   bash -c 'READY=$(kubectl get deployment web-stack -n d8f3b6a1c2e4-broken-stack -o jsonpath="{.status.readyReplicas}"); [[ -n "$READY" && "$READY" -ge 2 ]]'

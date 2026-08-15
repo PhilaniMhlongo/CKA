@@ -1,4 +1,4 @@
-# Question: NetworkPolicy Connectivity Debug (Troubleshooting - harder than exam)
+# Question: NetworkPolicy Connectivity Debug (Troubleshooting)
 
 # In namespace d8f3b6a1c2e4-netpol-debug, the pod 'client' (label app=client)
 # must be able to reach the deployment 'web' (label app=web) through the

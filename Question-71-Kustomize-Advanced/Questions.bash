@@ -1,4 +1,4 @@
-# Question: Advanced Kustomize (Cluster Architecture - harder than exam)
+# Question: Advanced Kustomize (Cluster Architecture)
 
 # Task
 # Create a Kustomize structure at /tmp/exam/kustomize-adv/ with:

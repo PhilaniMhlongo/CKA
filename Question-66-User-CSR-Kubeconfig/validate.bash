@@ -51,7 +51,7 @@ check "dev-user can create deployments in the namespace" \
   kubectl auth can-i create deployments --as=dev-user -n d8f3b6a1c2e4-dev
 
 check "dev-user can NOT list namespaces cluster-wide" \
-  bash -c '! kubectl auth can-i list namespaces --as=dev-user >/dev/null 2>&1'
+  bash -c 'kubectl get --raw=/version >/dev/null 2>&1 && ! kubectl auth can-i list namespaces --as=dev-user >/dev/null 2>&1'
 
 check "Kubeconfig file exists with embedded client certificate" \
   bash -c 'test -f "'"$WORKDIR"'/dev-user.kubeconfig" && grep -q client-certificate-data "'"$WORKDIR"'/dev-user.kubeconfig"'

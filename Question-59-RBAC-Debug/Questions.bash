@@ -1,4 +1,4 @@
-# Question: RBAC Debugging (Troubleshooting - harder than exam)
+# Question: RBAC Debugging (Troubleshooting)
 
 # A monitoring tool runs as ServiceAccount reporting-sa in namespace
 # d8f3b6a1c2e4-rbac-debug. It should be able to get, list and watch pods
@@ -7,7 +7,6 @@
 
 # Task
 # 1. Find every mistake in the existing Role/RoleBinding
-#    (hint: check resource names AND binding subjects carefully)
 # 2. Fix them so that:
 #      kubectl auth can-i list pods \
 #        --as=system:serviceaccount:d8f3b6a1c2e4-rbac-debug:reporting-sa \

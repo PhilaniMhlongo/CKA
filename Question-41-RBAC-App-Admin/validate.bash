@@ -75,7 +75,7 @@ check "ServiceAccount can update deployments" \
   kubectl auth can-i update deployments --as="$SA" -n "$NS"
 
 check "ServiceAccount can NOT delete pods (least privilege)" \
-  bash -c '! kubectl auth can-i delete pods --as="'"$SA"'" -n "'"$NS"'" >/dev/null 2>&1'
+  bash -c 'kubectl get --raw=/version >/dev/null 2>&1 && ! kubectl auth can-i delete pods --as="'"$SA"'" -n "'"$NS"'" >/dev/null 2>&1'
 
 echo ""
 echo "Results: $PASS/$TOTAL passed, $FAIL failed"

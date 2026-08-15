@@ -1,4 +1,4 @@
-# Question: Static Pod (Cluster Architecture - harder than exam)
+# Question: Static Pod (Cluster Architecture)
 # REQUIRES: control-plane node access (kubeadm cluster, e.g. Killercoda)
 
 # Task

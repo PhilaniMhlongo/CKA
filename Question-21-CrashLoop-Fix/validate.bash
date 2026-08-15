@@ -37,7 +37,7 @@ check "All webapp replicas are Ready" \
 
 # 3. No pods are currently in CrashLoopBackOff
 check "No webapp pods are in CrashLoopBackOff" \
-  bash -c '! kubectl get pods -n shopping -l app=webapp --no-headers 2>/dev/null | grep -q CrashLoopBackOff'
+  bash -c 'kubectl get --raw=/version >/dev/null 2>&1 && ! kubectl get pods -n shopping -l app=webapp --no-headers 2>/dev/null | grep -q CrashLoopBackOff'
 
 # 4. All webapp pods are Running
 check "All webapp pods are Running" \

@@ -22,6 +22,18 @@ scripts/cleanup-question.sh all
 
 Directory names can also be passed directly, e.g. `scripts/validate-question.sh Question-5-HPA`.
 
+`scripts/exam-mode.sh` runs several questions as one timed, scored session (the killer.sh / real-exam shape) instead of one isolated lab:
+
+```bash
+scripts/exam-mode.sh start -n 20 -t 120   # provision 20 random labs, start a 120-min clock
+scripts/exam-mode.sh start -s 42 --safe   # reproducible paper; --safe skips labs needing control-plane/multi-node
+scripts/exam-mode.sh status               # time remaining
+scripts/exam-mode.sh grade                # weighted score vs the 66% pass mark
+scripts/exam-mode.sh cleanup              # tear down every lab in the session
+```
+
+Scoring needs no weight table: a question is worth one point per `check` in its `validate.bash`, and `grade` parses the `Results: X/Y passed` line each `validate.bash` already prints. Keeping that output format intact is what keeps exam mode working. Session state lives in `$CKA_EXAM_HOME` (default `~/.cka-exam`), never in the repo.
+
 There is no separate "single test" concept beyond running validation for one question directory — each question's `validate.bash` is itself the full test for that scenario.
 
 ## Per-question structure
@@ -39,8 +51,14 @@ When editing or adding a question, keep this five-file shape and the PASS/FAIL c
 ## Adding a new question
 
 New questions are numbered sequentially (`Question-N-Short-Topic-Name/`). When adding one, also update:
-- The `seq 1 N` upper bound in `scripts/validate-question.sh` and `scripts/cleanup-question.sh` (currently `72` in both `all` loops — bump this or the new question will be silently skipped by `all`).
+- The `seq 1 N` upper bound in `scripts/validate-question.sh` and `scripts/cleanup-question.sh` (currently `74` in both `all` loops — bump this or the new question will be silently skipped by `all`).
 - The topics table in `README.md`.
+
+Two conventions that keep the labs exam-realistic:
+- **No hints in `Questions.bash`.** State the goal and the end state, never the fault list or the fix. Diagnosis is the skill being tested. Hints belong in `SolutionNotes.bash`, which the learner opens deliberately.
+- **Mark cluster requirements.** If a lab needs control-plane node access or more than one node, put `# REQUIRES: ...` (or "at least 2 schedulable") in `Questions.bash`. `exam-mode.sh --safe` filters on exactly that marker.
+
+Negative checks (`! kubectl get ...`) pass when the API server is simply unreachable. Gate them on a positive check first, e.g. `kubectl get namespace X && ! kubectl get configmap Y -n X`.
 
 ## Working directories used by labs
 

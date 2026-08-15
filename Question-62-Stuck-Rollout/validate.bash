@@ -39,7 +39,7 @@ check "All 3 replicas are available" \
   bash -c 'AVAIL=$(kubectl get deployment stuck-app -n d8f3b6a1c2e4-rollout -o jsonpath="{.status.availableReplicas}"); [[ -n "$AVAIL" && "$AVAIL" -ge 3 ]]'
 
 check "No stuck-app pod is Pending" \
-  bash -c '! kubectl get pods -n d8f3b6a1c2e4-rollout -l app=stuck-app --no-headers 2>/dev/null | grep -q Pending'
+  bash -c 'kubectl get --raw=/version >/dev/null 2>&1 && ! kubectl get pods -n d8f3b6a1c2e4-rollout -l app=stuck-app --no-headers 2>/dev/null | grep -q Pending'
 
 echo ""
 echo "Results: $PASS/$TOTAL passed, $FAIL failed"

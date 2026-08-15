@@ -62,7 +62,7 @@ check "SA can list pods cluster-wide" \
   kubectl auth can-i list pods --as="$SA" -A
 
 check "SA can NOT list secrets" \
-  bash -c '! kubectl auth can-i list secrets --as="'"$SA"'" >/dev/null 2>&1'
+  bash -c 'kubectl get --raw=/version >/dev/null 2>&1 && ! kubectl auth can-i list secrets --as="'"$SA"'" >/dev/null 2>&1'
 
 echo ""
 echo "Results: $PASS/$TOTAL passed, $FAIL failed"

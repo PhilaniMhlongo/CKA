@@ -1,4 +1,5 @@
 # Question:
+# REQUIRES: control-plane node access (kubeadm cluster, e.g. Killercoda)
 # A cluster migration has just been completed. Before the migration etcd ran
 # externally in an HA configuration; the kube-apiserver on the controlplane node
 # has not come back up since.

@@ -1,4 +1,4 @@
-# Question: Broken Sidecar Volume Sharing (Troubleshooting - harder than exam)
+# Question: Broken Sidecar Volume Sharing (Troubleshooting)
 
 # In namespace d8f3b6a1c2e4-sidecar, the pod log-processor has a writer
 # container that should append to app.log and a reader sidecar that should

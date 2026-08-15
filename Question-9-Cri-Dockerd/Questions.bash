@@ -1,4 +1,5 @@
 # Question: Cri-Dockerd
+# REQUIRES: control-plane node access (kubeadm cluster, e.g. Killercoda)
 
 # Task:
 # Set up cri-dockerd

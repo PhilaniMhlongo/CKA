@@ -1,4 +1,4 @@
-# Question: kubeadm Certificate Inspection & Renewal (Cluster Architecture - harder than exam)
+# Question: kubeadm Certificate Inspection & Renewal (Cluster Architecture)
 # REQUIRES: control-plane node access (kubeadm cluster, e.g. Killercoda)
 
 # Task

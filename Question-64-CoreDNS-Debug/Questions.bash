@@ -1,4 +1,4 @@
-# Question: Cluster DNS Outage (Troubleshooting - harder than exam)
+# Question: Cluster DNS Outage (Troubleshooting)
 # WARNING: this lab intentionally breaks cluster-wide DNS until you fix it.
 
 # Every pod in the cluster suddenly fails to resolve service names:

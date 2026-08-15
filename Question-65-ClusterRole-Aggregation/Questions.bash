@@ -1,4 +1,4 @@
-# Question: ClusterRole Aggregation (Cluster Architecture - harder than exam)
+# Question: ClusterRole Aggregation (Cluster Architecture)
 
 # Task
 # 1. Create ClusterRole monitoring-pods with label

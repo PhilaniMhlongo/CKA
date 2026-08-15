@@ -56,7 +56,7 @@ check "ServiceAccount can list pods" \
   kubectl auth can-i list pods --as=system:serviceaccount:default:app-sa -n default
 
 check "ServiceAccount can NOT delete pods (least privilege)" \
-  bash -c '! kubectl auth can-i delete pods --as=system:serviceaccount:default:app-sa -n default >/dev/null 2>&1'
+  bash -c 'kubectl get --raw=/version >/dev/null 2>&1 && ! kubectl auth can-i delete pods --as=system:serviceaccount:default:app-sa -n default >/dev/null 2>&1'
 
 echo ""
 echo "Results: $PASS/$TOTAL passed, $FAIL failed"

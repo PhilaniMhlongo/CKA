@@ -36,10 +36,10 @@ check "SA can watch pods" \
   kubectl auth can-i watch pods --as="$SA" -n "$NS"
 
 check "SA can NOT delete pods" \
-  bash -c '! kubectl auth can-i delete pods --as="'"$SA"'" -n "'"$NS"'" >/dev/null 2>&1'
+  bash -c 'kubectl get --raw=/version >/dev/null 2>&1 && ! kubectl auth can-i delete pods --as="'"$SA"'" -n "'"$NS"'" >/dev/null 2>&1'
 
 check "SA can NOT list secrets" \
-  bash -c '! kubectl auth can-i list secrets --as="'"$SA"'" -n "'"$NS"'" >/dev/null 2>&1'
+  bash -c 'kubectl get --raw=/version >/dev/null 2>&1 && ! kubectl auth can-i list secrets --as="'"$SA"'" -n "'"$NS"'" >/dev/null 2>&1'
 
 check "RoleBinding subject points at the correct namespace" \
   bash -c 'kubectl get rolebinding inspect-pods -n "'"$NS"'" -o jsonpath="{.subjects[0].namespace}" | grep -qx "'"$NS"'"'

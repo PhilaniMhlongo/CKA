@@ -41,7 +41,7 @@ sys.exit(1)
 "'
 
 check "All nodes are Ready (restart did not break the node)" \
-  bash -c '! kubectl get nodes --no-headers 2>/dev/null | grep -v " Ready" | grep -q .'
+  bash -c 'kubectl get --raw=/version >/dev/null 2>&1 && ! kubectl get nodes --no-headers 2>/dev/null | grep -v " Ready" | grep -q .'
 
 echo ""
 echo "Results: $PASS/$TOTAL passed, $FAIL failed"

@@ -1,4 +1,4 @@
-# Question: Broken Controller Manager (Troubleshooting - harder than exam)
+# Question: Broken Controller Manager (Troubleshooting)
 # REQUIRES: control-plane node access (kubeadm cluster, e.g. Killercoda)
 
 # Users report that new deployments in the cluster never create any pods.
@@ -10,11 +10,6 @@
 #    ReplicaSets from Deployments, and confirm it is unhealthy
 # 2. Find the root cause in its static pod manifest and fix it
 # 3. Verify kcm-test reaches 2/2 available replicas
-
-# Hints (only if stuck):
-# - kubectl get pods -n kube-system
-# - kubectl logs / crictl logs for the failing component
-# - static pod manifests live in /etc/kubernetes/manifests/
 
 # Documentation Reference
 # Concepts -> Architecture -> kube-controller-manager
