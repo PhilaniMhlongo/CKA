@@ -13,7 +13,7 @@ Services & Networking (DNS, NetworkPolicy), Storage, Rollouts.
 
 ## Question 1 — 6%
 
-**Context:** `kubectl config use-context k8s`
+**Context:** `kubectl config use-context kubernetes-admin@kubernetes`
 
 In namespace `monitoring`, create a pod named `resource-pod` using the `nginx` image with:
 
@@ -26,7 +26,7 @@ In namespace `monitoring`, create a pod named `resource-pod` using the `nginx` i
 
 ## Question 2 — 8%
 
-**Context:** `kubectl config use-context k8s`
+**Context:** `kubectl config use-context kubernetes-admin@kubernetes`
 
 In namespace `probes`, create a pod named `health-check` using the `nginx` image with **both**:
 
@@ -39,7 +39,7 @@ The pod must reach Ready.
 
 ## Question 3 — 8%
 
-**Context:** `kubectl config use-context k8s`
+**Context:** `kubectl config use-context kubernetes-admin@kubernetes`
 
 - Create a StorageClass named `fast-storage` with provisioner `kubernetes.io/no-provisioner`.
 - Create the namespace `storage`.
@@ -53,7 +53,7 @@ The pod must reach Ready.
 
 ## Question 4 — 10%
 
-**Context:** `kubectl config use-context k8s`
+**Context:** `kubectl config use-context kubernetes-admin@kubernetes`
 
 In namespace `monitoring`, create a pod named `logger` with **two containers** sharing
 an `emptyDir` volume mounted at `/var/log` in both:
@@ -66,7 +66,7 @@ an `emptyDir` volume mounted at `/var/log` in both:
 
 ## Question 5 — 12%
 
-**Context:** `kubectl config use-context k8s`
+**Context:** `kubectl config use-context kubernetes-admin@kubernetes`
 
 Pick any node (`kubectl get nodes`) and taint it:
 
@@ -89,7 +89,7 @@ Then, in namespace `scheduling`:
 
 ## Question 6 — 10%
 
-**Context:** `kubectl config use-context k8s`
+**Context:** `kubectl config use-context kubernetes-admin@kubernetes`
 
 Create namespace `security` and label it so that Pod Security Admission **enforces**
 the `restricted` standard.
@@ -109,7 +109,7 @@ If the pod is rejected by admission, your security context is wrong.
 
 ## Question 7 — 12%
 
-**Context:** `kubectl config use-context k8s`
+**Context:** `kubectl config use-context kubernetes-admin@kubernetes`
 
 In namespace `cluster-admin`:
 
@@ -126,7 +126,7 @@ In namespace `cluster-admin`:
 
 ## Question 8 — 12%
 
-**Context:** `kubectl config use-context k8s`
+**Context:** `kubectl config use-context kubernetes-admin@kubernetes`
 
 In namespace `dns-debug`:
 
@@ -146,7 +146,7 @@ nslookup web-svc.dns-debug.svc.cluster.local
 
 ## Question 9 — 12%
 
-**Context:** `kubectl config use-context k8s`
+**Context:** `kubectl config use-context kubernetes-admin@kubernetes`
 
 In namespace `network`, create three Deployments — `web`, `api`, `db` — each with
 1 replica of `nginx` and each carrying the pod label `app=<its own name>`.
@@ -163,7 +163,7 @@ Then create three NetworkPolicies:
 
 ## Question 10 — 10%
 
-**Context:** `kubectl config use-context k8s`
+**Context:** `kubectl config use-context kubernetes-admin@kubernetes`
 
 In namespace `upgrade`:
 
