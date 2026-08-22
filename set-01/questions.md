@@ -13,7 +13,7 @@ Cluster Architecture (RBAC), Troubleshooting.
 
 ## Question 1 — 5%
 
-**Context:** `kubectl config use-context k8s`
+**Context:** `kubectl config use-context kubernetes-admin@kubernetes`
 
 Create the namespace `app-team1`.
 
@@ -24,7 +24,7 @@ with the label `run=nginx-pod`.
 
 ## Question 2 — 8%
 
-**Context:** `kubectl config use-context k8s`
+**Context:** `kubectl config use-context kubernetes-admin@kubernetes`
 
 In namespace `config`:
 
@@ -38,7 +38,7 @@ The file `/etc/config/APP_COLOR` must be readable inside the container.
 
 ## Question 3 — 10%
 
-**Context:** `kubectl config use-context k8s`
+**Context:** `kubectl config use-context kubernetes-admin@kubernetes`
 
 In namespace `storage-task`:
 
@@ -54,7 +54,7 @@ In namespace `storage-task`:
 
 ## Question 4 — 10%
 
-**Context:** `kubectl config use-context k8s`
+**Context:** `kubectl config use-context kubernetes-admin@kubernetes`
 
 In namespace `web`:
 
@@ -68,7 +68,7 @@ All three pods must be available and the Service must have endpoints.
 
 ## Question 5 — 10%
 
-**Context:** `kubectl config use-context k8s`
+**Context:** `kubectl config use-context kubernetes-admin@kubernetes`
 
 In namespace `networking`, create a NetworkPolicy named `db-policy` that allows
 **ingress** traffic to pods labelled `role=db` **only** from pods labelled
@@ -80,7 +80,7 @@ No other ingress may be permitted to `role=db` pods.
 
 ## Question 6 — 10%
 
-**Context:** `kubectl config use-context k8s`
+**Context:** `kubectl config use-context kubernetes-admin@kubernetes`
 
 In namespace `rbac`:
 
@@ -94,7 +94,7 @@ The ServiceAccount must **not** gain any permission beyond those two verbs on po
 
 ## Question 7 — 12%
 
-**Context:** `kubectl config use-context k8s`
+**Context:** `kubectl config use-context kubernetes-admin@kubernetes`
 
 In namespace `scaling`:
 
@@ -110,7 +110,7 @@ In namespace `scaling`:
 
 ## Question 8 — 12%
 
-**Context:** `kubectl config use-context k8s`
+**Context:** `kubectl config use-context kubernetes-admin@kubernetes`
 
 Pick any node in the cluster (`kubectl get nodes`) and label it `disk=ssd`.
 
@@ -125,7 +125,7 @@ All 3 pods must end up Running.
 
 ## Question 9 — 12%
 
-**Context:** `kubectl config use-context k8s`
+**Context:** `kubectl config use-context kubernetes-admin@kubernetes`
 
 In namespace `logging`, create a DaemonSet named `log-collector` using image
 `busybox:1.36`.
@@ -139,7 +139,7 @@ In namespace `logging`, create a DaemonSet named `log-collector` using image
 
 ## Question 10 — 11%
 
-**Context:** `kubectl config use-context k8s`
+**Context:** `kubectl config use-context kubernetes-admin@kubernetes`
 
 `setup.sh` has already deployed a broken Deployment named `failing-app` in namespace
 `troubleshoot`. Its pods never become ready.
