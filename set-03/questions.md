@@ -14,7 +14,7 @@ priority, affinity), Cluster Architecture (Helm, Kustomize), Services & Networki
 
 ## Question 1 — 7%
 
-**Context:** `kubectl config use-context k8s`
+**Context:** `kubectl config use-context kubernetes-admin@kubernetes`
 
 Create a StorageClass named `fast-local` with:
 
@@ -27,7 +27,7 @@ Create a StorageClass named `fast-local` with:
 
 ## Question 2 — 10%
 
-**Context:** `kubectl config use-context k8s`
+**Context:** `kubectl config use-context kubernetes-admin@kubernetes`
 
 Create a statically provisioned volume:
 
@@ -46,7 +46,7 @@ The PVC must reach `Bound` and the pod must be Running.
 
 ## Question 3 — 10%
 
-**Context:** `kubectl config use-context k8s`
+**Context:** `kubectl config use-context kubernetes-admin@kubernetes`
 
 In namespace `stateful`:
 
@@ -65,7 +65,7 @@ In namespace `stateful`:
 
 ## Question 4 — 10%
 
-**Context:** `kubectl config use-context k8s`
+**Context:** `kubectl config use-context kubernetes-admin@kubernetes`
 
 In namespace `limits`:
 
@@ -81,7 +81,7 @@ In namespace `limits`:
 
 ## Question 5 — 8%
 
-**Context:** `kubectl config use-context k8s`
+**Context:** `kubectl config use-context kubernetes-admin@kubernetes`
 
 In namespace `consumer`, create a Deployment named `resource-consumer`, 3 replicas,
 image `registry.k8s.io/e2e-test-images/resource-consumer:1.13`, with requests
@@ -93,7 +93,7 @@ Add a HorizontalPodAutoscaler targeting **50%** CPU utilisation, min `3`, max `6
 
 ## Question 6 — 10%
 
-**Context:** `kubectl config use-context k8s`
+**Context:** `kubectl config use-context kubernetes-admin@kubernetes`
 
 Create two PriorityClasses, both with `globalDefault: false` and
 `preemptionPolicy: PreemptLowerPriority`:
@@ -116,7 +116,7 @@ node as the other pod.
 
 ## Question 7 — 8%
 
-**Context:** `kubectl config use-context k8s`
+**Context:** `kubectl config use-context kubernetes-admin@kubernetes`
 
 In namespace `dns-config`:
 
@@ -130,7 +130,7 @@ In namespace `dns-config`:
 
 ## Question 8 — 12%
 
-**Context:** `kubectl config use-context k8s`
+**Context:** `kubectl config use-context kubernetes-admin@kubernetes`
 
 Build a Kustomize tree at `/tmp/exam/kustomize/`:
 
@@ -147,7 +147,7 @@ Create the `kustomize` namespace and apply the production overlay with `kubectl 
 
 ## Question 9 — 10%
 
-**Context:** `kubectl config use-context k8s`
+**Context:** `kubectl config use-context kubernetes-admin@kubernetes`
 
 Add the Bitnami Helm repository (`https://charts.bitnami.com/bitnami`) and install the
 `nginx` chart as release `web-release` into namespace `helm-test` (create it), setting:
@@ -162,7 +162,7 @@ Add the Bitnami Helm repository (`https://charts.bitnami.com/bitnami`) and insta
 
 ## Question 10 — 15%
 
-**Context:** `kubectl config use-context k8s`
+**Context:** `kubectl config use-context kubernetes-admin@kubernetes`
 
 Install the **standard** Gateway API CRDs, then in namespace `gateway`:
 
