@@ -1,4 +1,5 @@
 # Question: PVC + Pod (Storage)
+# DOMAIN: Storage
 
 # Task
 # 1. Create a PersistentVolumeClaim named data-pvc in namespace eda9e0ec987a-storage-task

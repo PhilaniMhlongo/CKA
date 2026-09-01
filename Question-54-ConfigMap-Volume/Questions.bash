@@ -1,4 +1,5 @@
 # Question: ConfigMap as Volume
+# DOMAIN: WorkloadsScheduling
 
 # Task
 # 1. Create a ConfigMap app-config with key APP_COLOR=blue

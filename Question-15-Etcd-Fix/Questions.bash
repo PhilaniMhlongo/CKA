@@ -1,4 +1,6 @@
 # Question:
+# DOMAIN: Troubleshooting
+# DISRUPTIVE: kube-apiserver is down until you fix it - blocks all other work
 # REQUIRES: control-plane node access (kubeadm cluster, e.g. Killercoda)
 # A cluster migration has just been completed. Before the migration etcd ran
 # externally in an HA configuration; the kube-apiserver on the controlplane node

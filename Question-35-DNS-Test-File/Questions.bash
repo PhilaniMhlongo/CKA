@@ -1,4 +1,5 @@
 # Question: DNS Test to File
+# DOMAIN: ServicesNetworking
 
 # Task
 # 1. Create deployment dns-app (2 replicas, nginx) in namespace

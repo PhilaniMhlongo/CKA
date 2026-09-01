@@ -1,4 +1,5 @@
 # Question: Kustomize Base + Overlay
+# DOMAIN: ClusterArchitecture
 
 # Task
 # 1. Create a Kustomize structure at /tmp/exam/kustomize/ with:

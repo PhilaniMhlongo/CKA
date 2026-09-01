@@ -1,4 +1,6 @@
 # Question
+# DOMAIN: ServicesNetworking
+# DISRUPTIVE: installs a CNI - changes cluster-wide networking
 # Install and configure a CNI of your choice tht meets the specified requirements,
 # Choose one of the following:
 

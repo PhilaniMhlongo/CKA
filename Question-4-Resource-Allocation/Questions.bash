@@ -1,4 +1,5 @@
 # Question
+# DOMAIN: WorkloadsScheduling
 # You are managing a WordPress application running in a Kubernetes cluster
 # Your task is to adjust the Pod resource requests and limits to ensure stable operation
 

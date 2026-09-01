@@ -1,4 +1,5 @@
 # Question: Advanced Kustomize (Cluster Architecture)
+# DOMAIN: ClusterArchitecture
 
 # Task
 # Create a Kustomize structure at /tmp/exam/kustomize-adv/ with:

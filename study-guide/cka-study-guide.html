@@ -136,15 +136,22 @@ scripts/run-question.sh 56
 scripts/validate-question.sh 56        <span class="c"># prints PASS/FAIL per check + Results: X/Y passed</span>
 scripts/cleanup-question.sh 56
 
-<span class="c"># Simulate the real thing: 20 random labs, one 120-minute clock, weighted score</span>
-scripts/exam-mode.sh start -n 20 -t 120 --safe
+<span class="c"># Simulate the real thing. Questions are selected WEIGHTED to the domain
+# split below, so the paper tests what the exam tests.</span>
+scripts/exam-mode.sh start --1hr       <span class="c"># 60-minute paper (fits a Killercoda playground)</span>
+scripts/exam-mode.sh start --2hr       <span class="c"># 120-minute paper (full exam)</span>
+scripts/exam-mode.sh plan --1hr -s 42  <span class="c"># preview the paper, provision nothing</span>
 scripts/exam-mode.sh status            <span class="c"># time remaining</span>
-scripts/exam-mode.sh grade             <span class="c"># weighted % against the 66% pass mark</span>
+scripts/exam-mode.sh grade             <span class="c"># score overall AND per domain</span>
 scripts/exam-mode.sh cleanup</pre>
-  <p style="margin:0"><b>Scoring model:</b> a lab is worth one point per <code class="inl">check</code> in its
+  <p style="margin:0 0 2mm"><b>Scoring model:</b> a lab is worth one point per <code class="inl">check</code> in its
   <code class="inl">validate.bash</code>, so a four-bug troubleshooting lab outweighs a one-line pod creation —
-  exactly like the real exam. <code class="inl">--safe</code> filters out labs that need control-plane access or a
-  second node, so you can drill on a single-node cluster.</p>
+  exactly like the real exam. Papers are budgeted at roughly one point per minute.</p>
+  <p style="margin:0"><b>Weighted selection matters here.</b> The lab collection is naturally skewed — Workloads is
+  ~29% of all available points and Troubleshooting only ~17% — so a uniform random paper under-tests the exam's
+  largest domain. Weighted papers land within a couple of points of the real split. On Killercoda, do <b>not</b> pass
+  <code class="inl">--safe</code>: you have control-plane access, and it would drop the etcd, upgrade and kubelet labs
+  that make up much of the 25% Cluster Architecture domain.</p>
 </div>
 
 <!-- =================== PART 1 =================== -->
@@ -1259,15 +1266,15 @@ where the marks come from.</p>
 <tr><td><b>3</b></td><td>Storage &amp; networking</td><td>1, 14, 26, 27, 28, 33, 48 · 12, 13, 16, 34, 42, 51</td><td>Recite the five PVC binding rules. Write a NetworkPolicy with the four-question method.</td></tr>
 <tr><td><b>4</b></td><td>Cluster architecture</td><td>23, 41, 50, 65, 66 · 36, 37, 71, 72 · 67, 68, 69, 24, 73</td><td><b>Rehearse etcd backup/restore and the kubeadm upgrade three times each.</b> These are the biggest single blocks of marks on the paper.</td></tr>
 <tr><td><b>5</b></td><td>Troubleshooting</td><td>15, 20, 21, 22, 25, 45, 56, 57, 58, 59, 60, 61, 62, 63, 64, 70</td><td>Work each one <i>without</i> reading SolutionNotes first. Diagnosis is the skill; the fix is usually trivial once you have named the fault.</td></tr>
-<tr><td><b>6</b></td><td>Mock exams</td><td><code class="inl">exam-mode.sh</code> × 3</td><td>Three full timed papers with different seeds. Score 75%+ twice before you book.</td></tr>
+<tr><td><b>6</b></td><td>Mock exams</td><td><code class="inl">exam-mode.sh --2hr</code> × 3</td><td>Three full timed papers with different seeds. Score 75%+ twice before you book. Short on cluster time? <code class="inl">--1hr</code> papers carry the same domain weighting.</td></tr>
 </table>
 
 <div class="box tip">
 <b class="lab">The mock-exam protocol</b>
-<pre style="margin:2mm 0 0"><span class="c"># Sit a full paper. --safe if you only have a single-node cluster.</span>
-scripts/exam-mode.sh start -n 17 -t 120 -s 42
+<pre style="margin:2mm 0 0"><span class="c"># A full weighted paper. Use --1hr when you only have an hour of cluster.</span>
+scripts/exam-mode.sh start --2hr -s 42
 scripts/exam-mode.sh status
-scripts/exam-mode.sh grade
+scripts/exam-mode.sh grade      <span class="c"># the per-domain breakdown tells you what to drill next</span>
 scripts/exam-mode.sh cleanup</pre>
 <p style="margin:2mm 0 0"><b>Rules for it to be worth anything:</b> phone away, one kubernetes.io tab only, no notes,
 no going over time. Afterwards, re-run <code class="inl">validate-question.sh</code> on every question you lost points on

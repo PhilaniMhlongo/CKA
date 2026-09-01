@@ -1,4 +1,5 @@
 # Question: Onboard a User via CSR + Kubeconfig (Cluster Architecture)
+# DOMAIN: ClusterArchitecture
 
 # A new developer needs certificate-based access to namespace d8f3b6a1c2e4-dev.
 # Work in a local directory ./csr-work (or set WORKDIR).

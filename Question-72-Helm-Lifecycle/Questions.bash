@@ -1,4 +1,5 @@
 # Question: Helm Release Lifecycle (Cluster Architecture)
+# DOMAIN: ClusterArchitecture
 
 # Task
 # 1. Add the Bitnami repo (https://charts.bitnami.com/bitnami) and update it

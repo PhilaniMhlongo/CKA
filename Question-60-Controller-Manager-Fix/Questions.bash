@@ -1,4 +1,6 @@
 # Question: Broken Controller Manager (Troubleshooting)
+# DOMAIN: Troubleshooting
+# DISRUPTIVE: kube-controller-manager is down - no new ReplicaSets cluster-wide
 # REQUIRES: control-plane node access (kubeadm cluster, e.g. Killercoda)
 
 # Users report that new deployments in the cluster never create any pods.

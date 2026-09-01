@@ -1,4 +1,5 @@
 # Question: Pod Security (restricted)
+# DOMAIN: WorkloadsScheduling
 
 # Task
 # 1. Label namespace eda9e0ec987a-security with

@@ -1,4 +1,5 @@
 # Question: Simple Pod with Label
+# DOMAIN: WorkloadsScheduling
 
 # Task
 # In namespace 7b43d4b5300b-app-team1, create a pod named nginx-pod with

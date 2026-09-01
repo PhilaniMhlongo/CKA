@@ -1,4 +1,5 @@
 # Question: PVC Binding Failure (Troubleshooting)
+# DOMAIN: Troubleshooting
 
 # In namespace d8f3b6a1c2e4-storage-fix, the pod data-consumer is stuck
 # Pending because its PVC data-claim never binds to the pre-provisioned

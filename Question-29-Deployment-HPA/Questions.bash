@@ -1,4 +1,5 @@
 # Question: Deployment + HPA
+# DOMAIN: WorkloadsScheduling
 
 # Task
 # 1. Create a deployment named scaling-app in namespace eda9e0ec987a-scaling

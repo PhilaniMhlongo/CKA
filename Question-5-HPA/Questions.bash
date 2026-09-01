@@ -1,4 +1,5 @@
 # Question HPA
+# DOMAIN: WorkloadsScheduling
 # Create a new HorizontalPodAutoScaler(HPA) named apache-server in the autoscale namespace
 
 # Task

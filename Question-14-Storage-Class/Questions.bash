@@ -1,4 +1,5 @@
 # Question Storage Class
+# DOMAIN: Storage
 
 # Tasks
 # 1. Create a new StorageClass named local-storage with the provisioner rancher.io/local-path. Set

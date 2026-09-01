@@ -1,4 +1,6 @@
 # Question:
+# DOMAIN: Troubleshooting
+# DISRUPTIVE: a node is NotReady until you fix it - blocks scheduling
 # REQUIRES: control-plane node access (kubeadm cluster, e.g. Killercoda)
 # A node in the cluster has flipped to NotReady following a routine disk cleanup
 # that was run on that node.

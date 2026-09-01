@@ -1,4 +1,5 @@
 # Question: Node Affinity
+# DOMAIN: WorkloadsScheduling
 
 # Task
 # 1. Label any worker node with disk=ssd

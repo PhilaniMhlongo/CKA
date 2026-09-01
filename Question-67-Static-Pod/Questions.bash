@@ -1,4 +1,5 @@
 # Question: Static Pod (Cluster Architecture)
+# DOMAIN: ClusterArchitecture
 # REQUIRES: control-plane node access (kubeadm cluster, e.g. Killercoda)
 
 # Task

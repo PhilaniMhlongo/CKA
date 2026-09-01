@@ -1,4 +1,5 @@
 # Question: ClusterRole Aggregation (Cluster Architecture)
+# DOMAIN: ClusterArchitecture
 
 # Task
 # 1. Create ClusterRole monitoring-pods with label

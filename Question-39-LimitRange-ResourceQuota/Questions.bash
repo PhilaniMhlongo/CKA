@@ -1,4 +1,5 @@
 # Question: LimitRange + ResourceQuota
+# DOMAIN: WorkloadsScheduling
 
 # Task
 # 1. Create a LimitRange resource-limits in namespace eda9e0ec987a-limits with:

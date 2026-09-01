@@ -1,4 +1,5 @@
 # Question: Taints & Tolerations
+# DOMAIN: WorkloadsScheduling
 
 # Task
 # 1. Taint any worker node with special-workload=true:NoSchedule

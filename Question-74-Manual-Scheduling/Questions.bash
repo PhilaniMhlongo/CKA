@@ -1,4 +1,5 @@
 # Question: Manual Scheduling without kube-scheduler (Workloads & Scheduling)
+# DOMAIN: WorkloadsScheduling
 
 # Work in namespace d8f3b6a1c2e4-manual-sched. The file
 # ./manual-sched-work/target-node.txt (or $WORKDIR/target-node.txt) names the

@@ -1,4 +1,5 @@
 # Question CoreDNS
+# DOMAIN: Troubleshooting
 
 # Context:
 # Pods in the dns-lab namespace can resolve other Services inside the cluster,

@@ -1,4 +1,5 @@
 # Question: Tiered NetworkPolicies (web -> api -> db)
+# DOMAIN: ServicesNetworking
 
 # Task
 # 1. Create deployments web, api and db (1 replica each, nginx) in namespace

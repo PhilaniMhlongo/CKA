@@ -1,4 +1,5 @@
 # Question: DNS Debugging (dnsConfig)
+# DOMAIN: ServicesNetworking
 
 # Task
 # 1. Create deployment web-app (3 replicas, nginx) in namespace
