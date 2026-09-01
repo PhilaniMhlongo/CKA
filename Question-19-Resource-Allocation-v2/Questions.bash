@@ -1,4 +1,5 @@
 # Question 19: WordPress Deployment — Properly Size Resource Requests
+# DOMAIN: WorkloadsScheduling
 
 # SCENARIO:
 # A WordPress deployment in namespace 'relative-fawn' has 3 replicas.

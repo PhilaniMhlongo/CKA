@@ -1,4 +1,5 @@
 # Question: Multi-Container Pod (shared emptyDir)
+# DOMAIN: WorkloadsScheduling
 
 # Task
 # Create a pod logger in namespace 7b43d4b5300b-monitoring with two

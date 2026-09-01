@@ -1,4 +1,5 @@
 # Question: Troubleshoot a Broken Deployment
+# DOMAIN: Troubleshooting
 
 # In namespace eda9e0ec987a-troubleshoot, the deployment failing-app has
 # three issues:

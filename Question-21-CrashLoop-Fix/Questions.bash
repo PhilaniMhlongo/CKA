@@ -1,4 +1,5 @@
 # Question:
+# DOMAIN: Troubleshooting
 # The 'webapp' Deployment in the 'shopping' namespace is failing. Pods are
 # not reaching a Running/Ready state.
 

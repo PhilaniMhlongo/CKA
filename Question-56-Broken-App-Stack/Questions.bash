@@ -1,4 +1,5 @@
 # Question: Broken App Stack (Troubleshooting)
+# DOMAIN: Troubleshooting
 
 # In namespace d8f3b6a1c2e4-broken-stack, the deployment web-stack and its
 # service web-stack-svc were rolled out, but users report the app is

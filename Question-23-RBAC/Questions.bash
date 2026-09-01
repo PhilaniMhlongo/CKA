@@ -1,4 +1,5 @@
 # Question RBAC
+# DOMAIN: ClusterArchitecture
 
 # Context:
 # A ServiceAccount named report-runner exists in the finance namespace and is

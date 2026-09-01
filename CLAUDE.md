@@ -25,14 +25,21 @@ Directory names can also be passed directly, e.g. `scripts/validate-question.sh 
 `scripts/exam-mode.sh` runs several questions as one timed, scored session (the killer.sh / real-exam shape) instead of one isolated lab:
 
 ```bash
-scripts/exam-mode.sh start -n 20 -t 120   # provision 20 random labs, start a 120-min clock
-scripts/exam-mode.sh start -s 42 --safe   # reproducible paper; --safe skips labs needing control-plane/multi-node
+scripts/exam-mode.sh start --1hr          # 60-min paper (Killercoda playground size)
+scripts/exam-mode.sh start --2hr          # 120-min paper (full exam)
+scripts/exam-mode.sh start -t 90          # any duration; paper size follows the clock
+scripts/exam-mode.sh start -n 12 -t 60    # force a question count instead
+scripts/exam-mode.sh plan --1hr -s 42     # preview a paper WITHOUT provisioning anything
 scripts/exam-mode.sh status               # time remaining
-scripts/exam-mode.sh grade                # weighted score vs the 66% pass mark
+scripts/exam-mode.sh grade                # weighted score, overall and per domain
 scripts/exam-mode.sh cleanup              # tear down every lab in the session
 ```
 
 Scoring needs no weight table: a question is worth one point per `check` in its `validate.bash`, and `grade` parses the `Results: X/Y passed` line each `validate.bash` already prints. Keeping that output format intact is what keeps exam mode working. Session state lives in `$CKA_EXAM_HOME` (default `~/.cka-exam`), never in the repo.
+
+**Question selection is weighted to the real CKA domain split** (Troubleshooting 30 / Cluster Architecture 25 / Services & Networking 20 / Workloads & Scheduling 15 / Storage 10). The unit of weighting is *points*, not question count, so each domain is filled until it holds roughly its share of the paper's points. This matters because the corpus itself is skewed — Workloads is ~29% of all points and Troubleshooting only ~17%, so an unweighted paper under-tests the largest exam domain. `--uniform` restores the old uniform-random behaviour.
+
+Paper size is budgeted at ~1 point per minute (`PACE` in the script), which reproduces the real exam's pace of roughly 15-20 tasks in 120 minutes. `-n` overrides that and targets a question count instead.
 
 There is no separate "single test" concept beyond running validation for one question directory — each question's `validate.bash` is itself the full test for that scenario.
 
@@ -54,11 +61,12 @@ New questions are numbered sequentially (`Question-N-Short-Topic-Name/`). When a
 - The `seq 1 N` upper bound in `scripts/validate-question.sh` and `scripts/cleanup-question.sh` (currently `74` in both `all` loops — bump this or the new question will be silently skipped by `all`).
 - The topics table in `README.md`.
 
-Two conventions that keep the labs exam-realistic:
-- **No hints in `Questions.bash`.** State the goal and the end state, never the fault list or the fix. Diagnosis is the skill being tested. Hints belong in `SolutionNotes.bash`, which the learner opens deliberately.
-- **Mark cluster requirements.** If a lab needs control-plane node access or more than one node, put `# REQUIRES: ...` (or "at least 2 schedulable") in `Questions.bash`. `exam-mode.sh --safe` filters on exactly that marker.
+Every new `Questions.bash` must also carry a **`# DOMAIN:`** marker on the second line — one of `Troubleshooting`, `ClusterArchitecture`, `ServicesNetworking`, `WorkloadsScheduling`, `Storage`. `exam-mode.sh` reads it for weighted selection and for the per-domain score breakdown; a lab without one falls into an `Unclassified` bucket and will never be picked by a weighted paper.
 
-Negative checks (`! kubectl get ...`) pass when the API server is simply unreachable. Gate them on a positive check first, e.g. `kubectl get namespace X && ! kubectl get configmap Y -n X`.
+Conventions that keep the labs exam-realistic:
+- **No hints in `Questions.bash`.** State the goal and the end state, never the fault list or the fix. Diagnosis is the skill being tested. Hints belong in `SolutionNotes.bash`, which the learner opens deliberately. (The `# DOMAIN:` marker is stripped before the exam paper is printed, so it is tooling metadata rather than a hint.)
+- **Mark cluster requirements.** If a lab needs control-plane node access or more than one node, put `# REQUIRES: ...` (or "at least 2 schedulable") in `Questions.bash`. `exam-mode.sh --safe` filters on exactly that marker.
+- **Mark labs that disturb their neighbours.** A lab whose solution downs the control plane, cordons a node, breaks cluster DNS or rolls etcd back gets a `# DISRUPTIVE: <reason>` line. `exam-mode.sh` always orders those last in a paper so they cannot destroy the candidate's answers to earlier questions — Question 73 (etcd restore) is the sharp case: restoring a snapshot taken mid-exam silently reverts anything created after it.
 
 ## Working directories used by labs
 

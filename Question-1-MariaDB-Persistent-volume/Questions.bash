@@ -1,4 +1,5 @@
 # Question:
+# DOMAIN: Storage
 # A user accidentally deleted the MariaDB Deployment in the mariadb namespace. The deployment
 # was configured with persistent storage. Your responsibility is to re-establish the deployment
 # while ensuring data is preserved by reusing the available PersistentVolume

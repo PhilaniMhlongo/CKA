@@ -1,4 +1,6 @@
 # Question: Cri-Dockerd
+# DOMAIN: ClusterArchitecture
+# DISRUPTIVE: restarts the container runtime on the node
 # REQUIRES: control-plane node access (kubeadm cluster, e.g. Killercoda)
 
 # Task:

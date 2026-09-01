@@ -1,4 +1,5 @@
 # Question: Resource Consumer + HPA
+# DOMAIN: WorkloadsScheduling
 
 # Task
 # 1. Create deployment resource-consumer in namespace eda9e0ec987a-monitoring

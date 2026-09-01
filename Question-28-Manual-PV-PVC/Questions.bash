@@ -1,4 +1,5 @@
 # Question: Manual PV / PVC / Pod
+# DOMAIN: Storage
 
 # Task
 # 1. Create a PersistentVolume named eda9e0ec987a-manual-pv with:

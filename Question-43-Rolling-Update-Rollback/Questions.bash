@@ -1,4 +1,5 @@
 # Question: Rolling Update + Rollback
+# DOMAIN: WorkloadsScheduling
 
 # Task
 # 1. Create deployment app-v1 in namespace eda9e0ec987a-upgrade with

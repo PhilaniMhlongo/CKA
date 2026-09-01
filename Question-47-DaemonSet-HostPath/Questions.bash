@@ -1,4 +1,5 @@
 # Question: DaemonSet with hostPath + Tolerate All Taints
+# DOMAIN: WorkloadsScheduling
 
 # Task
 # In namespace 7b43d4b5300b-logging, create a DaemonSet log-collector:

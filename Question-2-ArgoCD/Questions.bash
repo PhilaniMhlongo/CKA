@@ -1,4 +1,5 @@
 # Question ArgoCD
+# DOMAIN: ClusterArchitecture
 
 #Task
 # Install Argo CD in a kubernetes cluster using helm while ensuring the CRDs are not installed

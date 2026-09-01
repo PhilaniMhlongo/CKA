@@ -1,4 +1,6 @@
 # Question: Cluster upgrade with kubeadm
+# DOMAIN: ClusterArchitecture
+# DISRUPTIVE: drains the controlplane and restarts control plane components
 # REQUIRES: control-plane node access (kubeadm cluster, e.g. Killercoda)
 
 # Context:

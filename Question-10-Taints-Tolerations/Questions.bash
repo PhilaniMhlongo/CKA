@@ -1,4 +1,5 @@
 # Question: Taints & Tolerances
+# DOMAIN: WorkloadsScheduling
 
 # Tasks:
 # 1. Add a taint to node01 so tht no normal pods can be scheduled in this node. key=PERMISSION, value=granted, Type=NoSchedule

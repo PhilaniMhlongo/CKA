@@ -1,4 +1,5 @@
 # Question: PriorityClasses + Pod Anti-Affinity
+# DOMAIN: WorkloadsScheduling
 
 # Task
 # 1. Create PriorityClasses:

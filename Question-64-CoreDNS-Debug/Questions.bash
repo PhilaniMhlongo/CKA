@@ -1,4 +1,6 @@
 # Question: Cluster DNS Outage (Troubleshooting)
+# DOMAIN: Troubleshooting
+# DISRUPTIVE: cluster-wide DNS outage until you fix it
 # WARNING: this lab intentionally breaks cluster-wide DNS until you fix it.
 
 # Every pod in the cluster suddenly fails to resolve service names:

@@ -1,4 +1,5 @@
 # Question: RBAC Debugging (Troubleshooting)
+# DOMAIN: Troubleshooting
 
 # A monitoring tool runs as ServiceAccount reporting-sa in namespace
 # d8f3b6a1c2e4-rbac-debug. It should be able to get, list and watch pods

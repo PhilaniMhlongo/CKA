@@ -1,4 +1,6 @@
 # Question:
+# DOMAIN: Troubleshooting
+# DISRUPTIVE: kube-scheduler is down until you fix it - nothing else will schedule
 # REQUIRES: control-plane node access (kubeadm cluster, e.g. Killercoda)
 # A pod named 'stuck-pod' in the 'triage' namespace has been Pending for a long
 # time and is never assigned to a node. Other workloads submitted after it are

@@ -1,4 +1,5 @@
 # Question: Default StorageClass
+# DOMAIN: Storage
 
 # Task
 # 1. Create a StorageClass named eda9e0ec987a-fast-local with:

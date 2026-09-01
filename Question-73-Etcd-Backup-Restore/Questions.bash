@@ -1,4 +1,6 @@
 # Question: etcd Snapshot Backup and Restore (Cluster Architecture)
+# DOMAIN: ClusterArchitecture
+# DISRUPTIVE: restores etcd - rolls cluster state back to the snapshot. ATTEMPT LAST
 # REQUIRES: control-plane node access (kubeadm cluster, e.g. Killercoda)
 
 # The cluster stores its state in a stacked etcd running as a static pod on

@@ -1,4 +1,5 @@
 # Question: Pod with Resource Requests/Limits
+# DOMAIN: WorkloadsScheduling
 
 # Task
 # Create a pod resource-pod in namespace 7b43d4b5300b-monitoring using nginx

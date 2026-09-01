@@ -1,4 +1,5 @@
 # Question: StorageClass + PVC (no-provisioner)
+# DOMAIN: Storage
 
 # Task
 # 1. Create a StorageClass 7b43d4b5300b-fast-storage with provisioner

@@ -1,4 +1,5 @@
 # Question: Headless Service + StatefulSet
+# DOMAIN: Storage
 
 # Task
 # 1. In namespace eda9e0ec987a-stateful, create a headless Service web-svc

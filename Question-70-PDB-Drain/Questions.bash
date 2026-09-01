@@ -1,4 +1,6 @@
 # Question: Node Maintenance Blocked by a PDB (Cluster Ops)
+# DOMAIN: ClusterArchitecture
+# DISRUPTIVE: drains a node and LEAVES it cordoned - blocks scheduling afterwards
 # NOTE: needs a cluster with at least 2 schedulable nodes.
 
 # You must take a node down for maintenance. The node runs pods of the

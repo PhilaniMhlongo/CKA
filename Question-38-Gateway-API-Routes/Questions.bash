@@ -1,4 +1,5 @@
 # Question: Gateway API
+# DOMAIN: ServicesNetworking
 
 # Task
 # 1. In namespace eda9e0ec987a-gateway, create deployments app1 and app2
