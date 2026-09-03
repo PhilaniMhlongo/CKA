@@ -1,0 +1,32 @@
+# NAME: Killer Paper 1
+# MINUTES: 120
+# DESC: Killer-level 2-hour paper. Heavy on multi-fault troubleshooting, node-level work and the long procedures (CSR/kubeconfig, cert renewal, static pods, etcd restore). Ends with an etcd restore - attempt the paper in order.
+#
+# Curated for difficulty: multi-fault labs, node/control-plane access and the
+# longest procedures. Disruptive labs are ordered last on purpose - work the
+# paper top to bottom so a downed control plane or an etcd rollback cannot
+# undo your earlier answers.
+#
+# Edit freely: one question directory per line, order preserved.
+
+Question-3-Sidecar
+Question-11-Gateway-API
+Question-12-Ingress
+Question-17-TLS-Config
+Question-19-Resource-Allocation-v2
+Question-21-CrashLoop-Fix
+Question-26-PVC-Pod-Storage
+Question-28-Manual-PV-PVC
+Question-45-Troubleshoot-Deployment
+Question-58-NetworkPolicy-Debug
+Question-61-PVC-Binding-Fix
+Question-62-Stuck-Rollout
+Question-63-Sidecar-Volume-Fix
+Question-66-User-CSR-Kubeconfig
+Question-67-Static-Pod
+Question-68-Cert-Renewal
+Question-69-Kubelet-MaxPods
+Question-15-Etcd-Fix
+Question-60-Controller-Manager-Fix
+Question-70-PDB-Drain
+Question-73-Etcd-Backup-Restore

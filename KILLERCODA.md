@@ -38,6 +38,27 @@ before you commit an hour to it:
 scripts/exam-mode.sh plan --1hr -s 42
 ```
 
+## Killer-level papers
+
+Two curated 2-hour papers, pitched harder than the weighted random ones: they
+concentrate the multi-fault troubleshooting labs, the node and control-plane
+work, and the long all-or-nothing procedures (CSR/kubeconfig, cert renewal,
+kubeadm upgrade, etcd restore).
+
+```bash
+scripts/exam-mode.sh papers                    # what is available
+scripts/exam-mode.sh plan  --paper killer-1    # preview, provisions nothing
+scripts/exam-mode.sh start --paper killer-1    # sit it
+```
+
+The two are **disjoint** — no lab appears in both — so they are two independent
+measurements rather than the same test twice. Sit `killer-1`, study your misses,
+then sit `killer-2` a week or so later.
+
+Both are deliberately over-stuffed for the clock, as killer.sh is: expect not to
+finish everything. Scoring 66% on either is a genuinely good result. Each ends
+with its disruptive labs, so work the paper top to bottom.
+
 ## Repeating a paper
 
 Playgrounds are ephemeral, so re-sitting the same exam is a normal thing to want.

@@ -1,5 +1,7 @@
 # Question
 # DOMAIN: ServicesNetworking
+# EXCLUSIVE: its LabSetUp DELETES the cluster CNI and sshes to node01, so it
+#            breaks pod networking for every other lab. Run it on its own.
 # DISRUPTIVE: installs a CNI - changes cluster-wide networking
 # Install and configure a CNI of your choice tht meets the specified requirements,
 # Choose one of the following:

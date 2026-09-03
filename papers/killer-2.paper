@@ -1,0 +1,27 @@
+# NAME: Killer Paper 2
+# MINUTES: 120
+# DESC: Killer-level 2-hour paper, disjoint from Paper 1. Heavy on the biggest multi-step labs (RBAC across namespaces, resource maths, headless services) plus a kubeadm upgrade and a cluster-wide DNS outage.
+#
+# Curated for difficulty: multi-fault labs, node/control-plane access and the
+# longest procedures. Disruptive labs are ordered last on purpose - work the
+# paper top to bottom so a downed control plane or an etcd rollback cannot
+# undo your earlier answers.
+#
+# Edit freely: one question directory per line, order preserved.
+
+Question-1-MariaDB-Persistent-volume
+Question-4-Resource-Allocation
+Question-13-Network-Policy
+Question-14-Storage-Class
+Question-16-NodePort
+Question-23-RBAC
+Question-25-CoreDNS
+Question-42-Tiered-NetworkPolicies
+Question-49-Multi-Container-EmptyDir
+Question-56-Broken-App-Stack
+Question-57-CrashLoop-Missing-Config
+Question-59-RBAC-Debug
+Question-9-Cri-Dockerd
+Question-22-Scheduler-Fix
+Question-24-Kubeadm-Upgrade
+Question-64-CoreDNS-Debug

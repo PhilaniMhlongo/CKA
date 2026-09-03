@@ -30,6 +30,8 @@ scripts/exam-mode.sh start --2hr          # 120-min paper (full exam)
 scripts/exam-mode.sh start -t 90          # any duration; paper size follows the clock
 scripts/exam-mode.sh start -n 12 -t 60    # force a question count instead
 scripts/exam-mode.sh plan --1hr -s 42     # preview a paper WITHOUT provisioning anything
+scripts/exam-mode.sh papers               # list the curated (fixed) papers
+scripts/exam-mode.sh start --paper killer-1   # sit a curated killer.sh-level paper
 scripts/exam-mode.sh retake               # repeat the last paper, exactly
 scripts/exam-mode.sh retake -i 3 -t 45    # repeat archived exam #3 on a tighter clock
 scripts/exam-mode.sh history              # past papers and scores
@@ -43,6 +45,8 @@ Scoring needs no weight table: a question is worth one point per `check` in its 
 **Question selection is weighted to the real CKA domain split** (Troubleshooting 30 / Cluster Architecture 25 / Services & Networking 20 / Workloads & Scheduling 15 / Storage 10). The unit of weighting is *points*, not question count, so each domain is filled until it holds roughly its share of the paper's points. This matters because the corpus itself is skewed — Workloads is ~29% of all points and Troubleshooting only ~17%, so an unweighted paper under-tests the largest exam domain. `--uniform` restores the old uniform-random behaviour.
 
 Paper size is budgeted at ~1 point per minute (`PACE` in the script), which reproduces the real exam's pace of roughly 15-20 tasks in 120 minutes. `-n` overrides that and targets a question count instead.
+
+**Curated papers** live in `papers/*.paper` — a `# NAME:`/`# MINUTES:`/`# DESC:` header plus one question directory per line. `--paper <id>` sits one; the list is fixed, so unlike a seed it is identical every time regardless of corpus drift. `papers/killer-1` and `killer-2` are two disjoint, difficulty-curated 2-hour papers (multi-fault labs, node/control-plane work, the long procedures), balanced to the domain weights and capped at two cluster-breaking labs each.
 
 **Repeating a paper: use `retake`, not the seed.** A seed reproduces a paper only while the corpus is unchanged — selection is re-derived from the labs on disk, so adding a lab or editing a `validate.bash` silently changes what a seed means (verified: introducing one extra lab changes 2 of 14 picks for the same seed). Every session is therefore archived to `$CKA_EXAM_HOME/history/` on `grade` or `cleanup` with its exact question list, and `retake` replays that list. `start -s X` warns when the corpus fingerprint has drifted since that seed was last used. Labs that have since been deleted are dropped from a retake with a warning rather than failing it.
 
@@ -71,6 +75,7 @@ Every new `Questions.bash` must also carry a **`# DOMAIN:`** marker on the secon
 Conventions that keep the labs exam-realistic:
 - **No hints in `Questions.bash`.** State the goal and the end state, never the fault list or the fix. Diagnosis is the skill being tested. Hints belong in `SolutionNotes.bash`, which the learner opens deliberately. (The `# DOMAIN:` marker is stripped before the exam paper is printed, so it is tooling metadata rather than a hint.)
 - **Mark cluster requirements.** If a lab needs control-plane node access or more than one node, put `# REQUIRES: ...` (or "at least 2 schedulable") in `Questions.bash`. `exam-mode.sh --safe` filters on exactly that marker.
+- **Mark labs that cannot share a cluster.** A lab whose *LabSetUp* wrecks the cluster for every other lab — Question 8 deletes the CNI and sshes to node01 — gets `# EXCLUSIVE: <reason>`. `exam-mode.sh` never auto-selects those into a generated or curated paper, though `--questions` can still name one. This is distinct from `# DISRUPTIVE:`, which is about damage done when the lab is *solved* and is handled by ordering.
 - **Mark labs that disturb their neighbours.** A lab whose solution downs the control plane, cordons a node, breaks cluster DNS or rolls etcd back gets a `# DISRUPTIVE: <reason>` line. `exam-mode.sh` always orders those last in a paper so they cannot destroy the candidate's answers to earlier questions — Question 73 (etcd restore) is the sharp case: restoring a snapshot taken mid-exam silently reverts anything created after it.
 
 ## Working directories used by labs

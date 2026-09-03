@@ -14,6 +14,8 @@
 #   scripts/exam-mode.sh start -s 42 --1hr    # reproducible paper
 #   scripts/exam-mode.sh start --questions "5 13 56 66"
 #   scripts/exam-mode.sh plan --1hr           # preview a paper WITHOUT provisioning
+#   scripts/exam-mode.sh papers               # list the curated (fixed) papers
+#   scripts/exam-mode.sh start --paper killer-1   # sit a curated killer.sh-level paper
 #   scripts/exam-mode.sh retake               # REPEAT the last paper, exactly
 #   scripts/exam-mode.sh retake -i 3 -t 45    # repeat exam #3 on a tighter clock
 #   scripts/exam-mode.sh history              # past papers and scores
@@ -113,6 +115,14 @@ is_disruptive() {
   grep -q '^# DISRUPTIVE:' "$BASE_DIR/$1/Questions.bash" 2>/dev/null
 }
 
+# A lab whose LabSetUp itself wrecks the cluster for every other lab (e.g.
+# deleting the CNI) carries "# EXCLUSIVE:". Never auto-select those into a
+# multi-question paper; they are still runnable on their own, and still
+# selectable by explicit --questions.
+is_exclusive() {
+  grep -q '^# EXCLUSIVE:' "$BASE_DIR/$1/Questions.bash" 2>/dev/null
+}
+
 disruptive_reason() {
   grep -m1 '^# DISRUPTIVE:' "$BASE_DIR/$1/Questions.bash" 2>/dev/null | sed 's/^# DISRUPTIVE: *//'
 }
@@ -136,6 +146,7 @@ require_session() {
   MODE="${MODE:-weighted}"
   SAFE="${SAFE:-0}"
   ORIGIN="${ORIGIN:-fresh}"
+  PAPER_ID="${PAPER:-}"
   FINGERPRINT="${FINGERPRINT:-}"
 }
 
@@ -156,6 +167,33 @@ fmt_duration() {
 # fingerprint the corpus so a drifted seed can be reported rather than
 # silently honoured.
 HISTORY_DIR="$STATE_DIR/history"
+PAPERS_DIR="$BASE_DIR/papers"
+
+# Load a curated paper: "# NAME:/# MINUTES:/# DESC:" headers plus one question
+# directory per line. Sets PAPER_NAME / PAPER_DESC / PAPER_MINUTES and echoes
+# the question list, ordered disruptive-last like a generated paper.
+load_paper_file() {
+  local name="$1" file="$PAPERS_DIR/$1.paper"
+  if [[ ! -f "$file" ]]; then
+    echo -e "${RED}No such paper: $name${NC}" >&2
+    echo "Available:" >&2
+    ls -1 "$PAPERS_DIR"/*.paper 2>/dev/null | xargs -r -n1 basename | sed 's/\.paper$/  /; s/^/  /' >&2
+    exit 1
+  fi
+  PAPER_NAME=$(grep -m1 '^# NAME:' "$file" | sed 's/^# NAME: *//')
+  PAPER_DESC=$(grep -m1 '^# DESC:' "$file" | sed 's/^# DESC: *//')
+  PAPER_MINUTES=$(grep -m1 '^# MINUTES:' "$file" | sed 's/^# MINUTES: *//')
+
+  local ordinary="" disruptive="" missing=""
+  while read -r d; do
+    d="${d%%#*}"; d="$(echo "$d" | tr -d '[:space:]')"
+    [[ -z "$d" ]] && continue
+    if [[ ! -d "$BASE_DIR/$d" ]]; then missing+="$d "; continue; fi
+    if is_disruptive "$d"; then disruptive+="$d"$'\n'; else ordinary+="$d"$'\n'; fi
+  done < "$file"
+  [[ -n "$missing" ]] && echo -e "${YELLOW}Skipping labs that no longer exist: $missing${NC}" >&2
+  printf '%s%s' "$ordinary" "$disruptive" | grep -v '^$'
+}
 
 corpus_fingerprint() {
   all_question_dirs | while read -r d; do
@@ -166,7 +204,12 @@ corpus_fingerprint() {
 
 # Rebuild the exact command that reproduces a session, losing no flags.
 replay_command() {
-  local seed="$1" minutes="$2" mode="$3" safe="$4"
+  local seed="$1" minutes="$2" mode="$3" safe="$4" paper="${5:-}"
+  # A curated paper is reproduced by name; its seed is meaningless.
+  if [[ -n "$paper" ]]; then
+    echo "scripts/exam-mode.sh start --paper $paper -t $minutes"
+    return 0
+  fi
   local cmd="scripts/exam-mode.sh start -s $seed -t $minutes"
   [[ "$safe" == "1" ]] && cmd+=" --safe"
   [[ "$mode" == "uniform" ]] && cmd+=" --uniform"
@@ -247,6 +290,7 @@ select_questions() {
 
   while read -r d; do
     [[ -z "$d" ]] && continue
+    is_exclusive "$d" && continue
     local dis=0
     is_disruptive "$d" && dis=1
     spec+="$d:$(question_domain "$d"):$(question_weight "$d"):$dis"$'\n'
@@ -360,24 +404,31 @@ parse_and_select() {
   local mode="weighted"
   local explicit=""
   local count=""
+  local paper_name=""
+  local minutes_set=0
 
   while [[ $# -gt 0 ]]; do
     case "$1" in
       -n) count="$2"; shift 2 ;;
-      -t) minutes="$2"; shift 2 ;;
+      -t) minutes="$2"; minutes_set=1; shift 2 ;;
       -s) seed="$2"; shift 2 ;;
-      --1hr|--1h) minutes=60; shift ;;
-      --2hr|--2h) minutes=120; shift ;;
+      --1hr|--1h) minutes=60; minutes_set=1; shift ;;
+      --2hr|--2h) minutes=120; minutes_set=1; shift ;;
       --safe) safe=1; shift ;;
       --uniform) mode="uniform"; shift ;;
       --weighted) mode="weighted"; shift ;;
       --questions) explicit="$2"; shift 2 ;;
+      --paper) paper_name="$2"; shift 2 ;;
       *) echo "Unknown option: $1" >&2; exit 1 ;;
     esac
   done
 
   local selected="" target=0
-  if [[ -n "$explicit" ]]; then
+  PAPER_NAME=""; PAPER_DESC=""
+  if [[ -n "$paper_name" ]]; then
+    selected=$(load_paper_file "$paper_name")
+    [[ $minutes_set -eq 0 && -n "${PAPER_MINUTES:-}" ]] && minutes="$PAPER_MINUTES"
+  elif [[ -n "$explicit" ]]; then
     for n in $explicit; do
       local d
       d=$(all_question_dirs | grep -E "^Question-${n}-" | head -1)
@@ -408,6 +459,7 @@ parse_and_select() {
   SEL_MODE="$mode"
   SEL_SAFE="$safe"
   SEL_TARGET="$target"
+  SEL_PAPER="$paper_name"
 }
 
 # Writes the printable question paper to $1 for the given selection.
@@ -427,8 +479,13 @@ write_paper() {
     echo " Questions:  $n_selected   ($total_weight points)"
     echo " Time limit: ${minutes} minutes"
     echo " Pass mark:  ${PASS_MARK}%   (need $(python3 -c "import math;print(math.ceil($total_weight*$PASS_MARK/100))") points)"
-    echo " Selection:  $SEL_MODE$([[ $SEL_SAFE -eq 1 ]] && echo ' --safe')"
-    echo " Seed:       $SEED_LABEL"
+    if [[ -n "${SEL_PAPER:-}" ]]; then
+      echo " Paper:      ${PAPER_NAME:-$SEL_PAPER}  [--paper $SEL_PAPER]"
+      [[ -n "${PAPER_DESC:-}" ]] && echo " $(echo "$PAPER_DESC" | fold -s -w 58 | sed '2,$s/^/             /')"
+    else
+      echo " Selection:  $SEL_MODE$([[ $SEL_SAFE -eq 1 ]] && echo ' --safe')"
+    fi
+    [[ -z "${SEL_PAPER:-}" ]] && echo " Seed:       $SEED_LABEL"
     echo " Deadline:   PENDING"
     echo "============================================================"
     echo ""
@@ -489,7 +546,7 @@ cmd_plan() {
   echo ""
   echo -e "${CYAN}This was a preview - nothing was provisioned.${NC}"
   echo "Start it for real with the same paper:"
-  echo "  $(replay_command "$SEL_SEED" "$SEL_MINUTES" "$SEL_MODE" "$SEL_SAFE")"
+  echo "  $(replay_command "$SEL_SEED" "$SEL_MINUTES" "$SEL_MODE" "$SEL_SAFE" "${SEL_PAPER:-}")"
 }
 
 # -- start ----------------------------------------------------
@@ -518,7 +575,7 @@ provision_and_launch() {
   if [[ "$origin" == "retake" ]]; then
     SEED_LABEL="$seed   (RETAKE - replayed from a recorded paper, not re-derived)"
   else
-    SEED_LABEL="$seed   (repeat with: $(replay_command "$seed" "$minutes" "$SEL_MODE" "$SEL_SAFE"))"
+    SEED_LABEL="$seed   (repeat with: $(replay_command "$seed" "$minutes" "$SEL_MODE" "$SEL_SAFE" "${SEL_PAPER:-}"))"
   fi
   write_paper "$PAPER"
 
@@ -532,6 +589,7 @@ provision_and_launch() {
     echo "MODE=$SEL_MODE"
     echo "SAFE=$SEL_SAFE"
     echo "ORIGIN=$origin"
+    echo "PAPER=${SEL_PAPER:-}"
     echo "FINGERPRINT=$(corpus_fingerprint)"
     echo "QUESTIONS=\"$(echo "$selected" | tr '\n' ' ')\""
   } > "$SESSION"
@@ -642,7 +700,7 @@ cmd_retake() {
     case "$1" in
       -i) kind="index"; value="$2"; shift 2 ;;
       -s) kind="seed";  value="$2"; shift 2 ;;
-      -t) minutes="$2"; shift 2 ;;
+      -t) minutes="$2"; minutes_set=1; shift 2 ;;
       --force) force=1; shift ;;
       last) kind="last"; shift ;;
       *) echo "Unknown option: $1" >&2; exit 1 ;;
@@ -687,6 +745,7 @@ cmd_retake() {
   SEL_MINUTES="${minutes:-$REC_MIN}"
   SEL_MODE="${REC_MODE:-weighted}"
   SEL_SAFE="${REC_SAFE:-0}"
+  SEL_PAPER=$(grep -m1 '^PAPER=' "$rec" | cut -d= -f2)
 
   echo -e "${CYAN}Retaking the paper from $(basename "$rec").${NC}"
   local prev_score
@@ -700,6 +759,29 @@ cmd_retake() {
   echo ""
 
   provision_and_launch retake
+}
+
+# -- papers ---------------------------------------------------
+
+cmd_papers() {
+  if ! ls "$PAPERS_DIR"/*.paper >/dev/null 2>&1; then
+    echo "No curated papers in $PAPERS_DIR"
+    return 0
+  fi
+  echo "Curated papers (fixed question lists - identical every time):"
+  echo ""
+  for f in "$PAPERS_DIR"/*.paper; do
+    local id name mins n
+    id=$(basename "$f" .paper)
+    name=$(grep -m1 '^# NAME:' "$f" | sed 's/^# NAME: *//')
+    mins=$(grep -m1 '^# MINUTES:' "$f" | sed 's/^# MINUTES: *//')
+    n=$(grep -vE '^\s*#|^\s*$' "$f" | wc -l)
+    printf "  %-12s %-18s %s questions, %s min\n" "$id" "$name" "$n" "$mins"
+    grep -m1 '^# DESC:' "$f" | sed 's/^# DESC: */               /' | fold -s -w 74 | sed '2,$s/^/               /'
+    echo ""
+  done
+  echo "Sit one:     scripts/exam-mode.sh start --paper killer-1"
+  echo "Preview:     scripts/exam-mode.sh plan  --paper killer-1"
 }
 
 # -- history --------------------------------------------------
@@ -848,8 +930,13 @@ for pct, dom, got, want in sorted(rows):
   echo "    scripts/exam-mode.sh cleanup && scripts/exam-mode.sh retake"
   echo "  Same paper, tighter clock:"
   echo "    scripts/exam-mode.sh retake -t $(( LIMIT_MINUTES * 3 / 4 ))"
-  echo "  Regenerate from the seed instead (only matches while the labs are unchanged):"
-  echo "    $(replay_command "$SEED" "$LIMIT_MINUTES" "$MODE" "$SAFE")"
+  if [[ -n "$PAPER_ID" ]]; then
+    echo "  Or sit the same curated paper again:"
+    echo "    $(replay_command "$SEED" "$LIMIT_MINUTES" "$MODE" "$SAFE" "$PAPER_ID")"
+  else
+    echo "  Regenerate from the seed instead (only matches while the labs are unchanged):"
+    echo "    $(replay_command "$SEED" "$LIMIT_MINUTES" "$MODE" "$SAFE")"
+  fi
   echo ""
 
   [[ "$verdict" == "1" && $overtime -eq 0 ]] && exit 0 || exit 1
@@ -888,9 +975,10 @@ case "$CMD" in
   plan)    cmd_plan "$@" ;;
   retake)  cmd_retake "$@" ;;
   history) cmd_history ;;
+  papers)  cmd_papers ;;
   status)  cmd_status ;;
   paper)   cmd_paper ;;
   grade)   cmd_grade ;;
   cleanup) cmd_cleanup ;;
-  *) echo "Unknown command: $CMD (expected start|plan|retake|history|status|paper|grade|cleanup)" >&2; exit 1 ;;
+  *) echo "Unknown command: $CMD (expected start|plan|retake|papers|history|status|paper|grade|cleanup)" >&2; exit 1 ;;
 esac
