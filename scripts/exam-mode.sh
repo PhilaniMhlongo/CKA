@@ -178,16 +178,35 @@ replay_command() {
 archive_session() {
   local score="${1:-}"
   [[ -f "$SESSION" ]] || return 0
-  grep -q '^ARCHIVED=1' "$SESSION" && return 0
   mkdir -p "$HISTORY_DIR"
-  local stamp file seed
+
+  local stamp file seed existing
   stamp=$(date '+%Y%m%d-%H%M%S')
   # Read the seed from the file rather than caller state: archive_session is
   # called from paths that have not sourced the session.
   seed=$(grep -m1 '^SEED=' "$SESSION" | cut -d= -f2)
+  existing=$(grep -m1 '^ARCHIVE_FILE=' "$SESSION" | cut -d= -f2-)
+
+  if [[ -n "$existing" && -f "$existing" ]]; then
+    # Already archived. Refresh the score rather than keeping a stale one:
+    # grading twice in a session (a mid-exam progress check, then the real
+    # grade at the end) must record the LAST score, not the first.
+    file="$existing"
+    if [[ -n "$score" ]]; then
+      grep -v '^SCORE=' "$file" > "$file.tmp" && mv "$file.tmp" "$file"
+      echo "SCORE=$score" >> "$file"
+      # Keep the record's timestamp honest about when it was last scored.
+      grep -v '^ARCHIVED_AT=' "$file" > "$file.tmp" && mv "$file.tmp" "$file"
+      echo "ARCHIVED_AT=$stamp" >> "$file"
+    fi
+    echo "$file"
+    return 0
+  fi
+
   file="$HISTORY_DIR/${stamp}-seed${seed:-unknown}.env"
-  { cat "$SESSION"; echo "ARCHIVED_AT=$stamp"; [[ -n "$score" ]] && echo "SCORE=$score"; } > "$file"
-  echo "ARCHIVED=1" >> "$SESSION"
+  { grep -v '^ARCHIVE_FILE=' "$SESSION"; echo "ARCHIVED_AT=$stamp"
+    [[ -n "$score" ]] && echo "SCORE=$score"; } > "$file"
+  echo "ARCHIVE_FILE=$file" >> "$SESSION"
   echo "$file"
 }
 
