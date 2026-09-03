@@ -30,6 +30,9 @@ scripts/exam-mode.sh start --2hr          # 120-min paper (full exam)
 scripts/exam-mode.sh start -t 90          # any duration; paper size follows the clock
 scripts/exam-mode.sh start -n 12 -t 60    # force a question count instead
 scripts/exam-mode.sh plan --1hr -s 42     # preview a paper WITHOUT provisioning anything
+scripts/exam-mode.sh retake               # repeat the last paper, exactly
+scripts/exam-mode.sh retake -i 3 -t 45    # repeat archived exam #3 on a tighter clock
+scripts/exam-mode.sh history              # past papers and scores
 scripts/exam-mode.sh status               # time remaining
 scripts/exam-mode.sh grade                # weighted score, overall and per domain
 scripts/exam-mode.sh cleanup              # tear down every lab in the session
@@ -40,6 +43,8 @@ Scoring needs no weight table: a question is worth one point per `check` in its 
 **Question selection is weighted to the real CKA domain split** (Troubleshooting 30 / Cluster Architecture 25 / Services & Networking 20 / Workloads & Scheduling 15 / Storage 10). The unit of weighting is *points*, not question count, so each domain is filled until it holds roughly its share of the paper's points. This matters because the corpus itself is skewed — Workloads is ~29% of all points and Troubleshooting only ~17%, so an unweighted paper under-tests the largest exam domain. `--uniform` restores the old uniform-random behaviour.
 
 Paper size is budgeted at ~1 point per minute (`PACE` in the script), which reproduces the real exam's pace of roughly 15-20 tasks in 120 minutes. `-n` overrides that and targets a question count instead.
+
+**Repeating a paper: use `retake`, not the seed.** A seed reproduces a paper only while the corpus is unchanged — selection is re-derived from the labs on disk, so adding a lab or editing a `validate.bash` silently changes what a seed means (verified: introducing one extra lab changes 2 of 14 picks for the same seed). Every session is therefore archived to `$CKA_EXAM_HOME/history/` on `grade` or `cleanup` with its exact question list, and `retake` replays that list. `start -s X` warns when the corpus fingerprint has drifted since that seed was last used. Labs that have since been deleted are dropped from a retake with a warning rather than failing it.
 
 There is no separate "single test" concept beyond running validation for one question directory — each question's `validate.bash` is itself the full test for that scenario.
 

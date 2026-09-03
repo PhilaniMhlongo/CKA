@@ -14,6 +14,9 @@
 #   scripts/exam-mode.sh start -s 42 --1hr    # reproducible paper
 #   scripts/exam-mode.sh start --questions "5 13 56 66"
 #   scripts/exam-mode.sh plan --1hr           # preview a paper WITHOUT provisioning
+#   scripts/exam-mode.sh retake               # REPEAT the last paper, exactly
+#   scripts/exam-mode.sh retake -i 3 -t 45    # repeat exam #3 on a tighter clock
+#   scripts/exam-mode.sh history              # past papers and scores
 #   scripts/exam-mode.sh status               # time remaining
 #   scripts/exam-mode.sh paper                # reprint the question paper
 #   scripts/exam-mode.sh grade                # score, overall and per domain
@@ -42,6 +45,13 @@
 # They are always placed LAST in the paper so they cannot destroy your
 # answers to the other questions. Question 73 (etcd restore) rolls the
 # cluster back to its snapshot - attempt it last, exactly as the paper orders it.
+#
+# Repeating a paper: `retake` replays the exact recorded question list and is
+# the reliable way to re-sit an exam. A seed alone only reproduces a paper
+# while the lab collection is unchanged - selection is re-derived from what is
+# on disk, so adding a lab or editing a validate.bash silently changes what a
+# seed means. Every session is archived on grade/cleanup, and `start -s X`
+# warns when the corpus has drifted since that seed was last used.
 #
 # Pass mark is 66%, matching the real CKA.
 # ============================================================
@@ -122,6 +132,11 @@ require_session() {
   fi
   # shellcheck disable=SC1090
   source "$SESSION"
+  # Sessions written by older versions lack these; keep `set -u` happy.
+  MODE="${MODE:-weighted}"
+  SAFE="${SAFE:-0}"
+  ORIGIN="${ORIGIN:-fresh}"
+  FINGERPRINT="${FINGERPRINT:-}"
 }
 
 fmt_duration() {
@@ -130,6 +145,65 @@ fmt_duration() {
   printf "%s%d:%02d:%02d" "$sign" $((total/3600)) $(((total%3600)/60)) $((total%60))
 }
 
+
+
+# -- reproducibility ------------------------------------------
+#
+# A seed only reproduces a paper while the corpus is unchanged: selection is
+# re-derived from the labs present on disk, so adding a lab or changing a
+# validate.bash silently changes what a seed means. We therefore record the
+# exact question list of every session and replay THAT (see `retake`), and
+# fingerprint the corpus so a drifted seed can be reported rather than
+# silently honoured.
+HISTORY_DIR="$STATE_DIR/history"
+
+corpus_fingerprint() {
+  all_question_dirs | while read -r d; do
+    [[ -z "$d" ]] && continue
+    printf '%s:%s\n' "$d" "$(question_weight "$d")"
+  done | md5sum | cut -c1-12
+}
+
+# Rebuild the exact command that reproduces a session, losing no flags.
+replay_command() {
+  local seed="$1" minutes="$2" mode="$3" safe="$4"
+  local cmd="scripts/exam-mode.sh start -s $seed -t $minutes"
+  [[ "$safe" == "1" ]] && cmd+=" --safe"
+  [[ "$mode" == "uniform" ]] && cmd+=" --uniform"
+  echo "$cmd"
+}
+
+# Copy the finished session into the history archive so it stays replayable
+# after cleanup. Idempotent: a session is archived at most once.
+archive_session() {
+  local score="${1:-}"
+  [[ -f "$SESSION" ]] || return 0
+  grep -q '^ARCHIVED=1' "$SESSION" && return 0
+  mkdir -p "$HISTORY_DIR"
+  local stamp file seed
+  stamp=$(date '+%Y%m%d-%H%M%S')
+  # Read the seed from the file rather than caller state: archive_session is
+  # called from paths that have not sourced the session.
+  seed=$(grep -m1 '^SEED=' "$SESSION" | cut -d= -f2)
+  file="$HISTORY_DIR/${stamp}-seed${seed:-unknown}.env"
+  { cat "$SESSION"; echo "ARCHIVED_AT=$stamp"; [[ -n "$score" ]] && echo "SCORE=$score"; } > "$file"
+  echo "ARCHIVED=1" >> "$SESSION"
+  echo "$file"
+}
+
+# Resolve a history record from: nothing (most recent), -i INDEX, or -s SEED.
+find_history_record() {
+  local kind="$1" value="${2:-}"
+  [[ -d "$HISTORY_DIR" ]] || return 1
+  local files
+  files=$(ls -1 "$HISTORY_DIR"/*.env 2>/dev/null | sort)
+  [[ -z "$files" ]] || true
+  case "$kind" in
+    last)  echo "$files" | tail -1 ;;
+    index) echo "$files" | sed -n "${value}p" ;;
+    seed)  echo "$files" | grep -E "seed${value}\.env$" | tail -1 ;;
+  esac
+}
 
 # -- selection engine -----------------------------------------
 #
@@ -396,25 +470,20 @@ cmd_plan() {
   echo ""
   echo -e "${CYAN}This was a preview - nothing was provisioned.${NC}"
   echo "Start it for real with the same paper:"
-  echo "  scripts/exam-mode.sh start -s $SEL_SEED -t $SEL_MINUTES$([[ $SEL_SAFE -eq 1 ]] && echo ' --safe')$([[ "$SEL_MODE" == uniform ]] && echo ' --uniform')"
+  echo "  $(replay_command "$SEL_SEED" "$SEL_MINUTES" "$SEL_MODE" "$SEL_SAFE")"
 }
 
 # -- start ----------------------------------------------------
 
-cmd_start() {
-  if [[ -f "$SESSION" ]]; then
-    echo -e "${YELLOW}An exam session already exists.${NC}"
-    echo "Grade it with 'scripts/exam-mode.sh grade' or discard it with"
-    echo "'scripts/exam-mode.sh cleanup' before starting a new one."
-    exit 1
-  fi
-
-  parse_and_select "$@"
-  mkdir -p "$STATE_DIR"
-
+# Provisions $SEL_QUESTIONS, writes the session + paper, and starts the clock.
+# Shared by `start` and `retake`.
+provision_and_launch() {
   local selected="$SEL_QUESTIONS"
   local seed="$SEL_SEED"
   local minutes="$SEL_MINUTES"
+  local origin="${1:-fresh}"
+
+  mkdir -p "$STATE_DIR"
 
   local n_selected total_weight=0
   n_selected=$(echo "$selected" | grep -c .)
@@ -427,7 +496,11 @@ cmd_start() {
   start_epoch=$(date +%s)
   deadline_epoch=$(( start_epoch + minutes * 60 ))
 
-  SEED_LABEL="$seed   (reuse with -s $seed for the same paper)"
+  if [[ "$origin" == "retake" ]]; then
+    SEED_LABEL="$seed   (RETAKE - replayed from a recorded paper, not re-derived)"
+  else
+    SEED_LABEL="$seed   (repeat with: $(replay_command "$seed" "$minutes" "$SEL_MODE" "$SEL_SAFE"))"
+  fi
   write_paper "$PAPER"
 
   # -- persist the session ------------------------------------
@@ -439,6 +512,8 @@ cmd_start() {
     echo "TOTAL_WEIGHT=$total_weight"
     echo "MODE=$SEL_MODE"
     echo "SAFE=$SEL_SAFE"
+    echo "ORIGIN=$origin"
+    echo "FINGERPRINT=$(corpus_fingerprint)"
     echo "QUESTIONS=\"$(echo "$selected" | tr '\n' ' ')\""
   } > "$SESSION"
 
@@ -484,6 +559,154 @@ cmd_start() {
   echo "control plane or an etcd rollback cannot undo your earlier answers."
   echo "Use --safe for a clean run on a single-node cluster (but on Killercoda"
   echo "you have control-plane access, so --safe only costs you exam coverage)."
+}
+
+# Refuses to clobber a live session unless --force was passed.
+guard_existing_session() {
+  local force="$1"
+  [[ -f "$SESSION" ]] || return 0
+  if [[ "$force" == "1" ]]; then
+    echo -e "${YELLOW}Discarding the existing session (--force).${NC}"
+    echo -e "${YELLOW}Its labs are NOT torn down - run cleanup first if you wanted that.${NC}"
+    archive_session >/dev/null
+    rm -f "$SESSION" "$PAPER"
+    return 0
+  fi
+  echo -e "${YELLOW}An exam session already exists.${NC}"
+  # shellcheck disable=SC1090
+  source "$SESSION"
+  echo "  Started with seed $SEED for ${LIMIT_MINUTES} minutes."
+  echo ""
+  echo "Finish it, or clear it first:"
+  echo "  scripts/exam-mode.sh grade      # score it (archives it for retake)"
+  echo "  scripts/exam-mode.sh cleanup    # tear the labs down and clear it"
+  echo "  ... or re-run with --force to discard it without tearing labs down."
+  exit 1
+}
+
+# -- start ----------------------------------------------------
+
+cmd_start() {
+  local force=0 passthru=()
+  for a in "$@"; do
+    if [[ "$a" == "--force" ]]; then force=1; else passthru+=("$a"); fi
+  done
+  guard_existing_session "$force"
+
+  parse_and_select "${passthru[@]}"
+
+  # Warn if this seed produced a different paper last time because the
+  # corpus changed underneath it.
+  if [[ -d "$HISTORY_DIR" ]]; then
+    local prev fp_now fp_then
+    prev=$(find_history_record seed "$SEL_SEED" || true)
+    if [[ -n "$prev" && -f "$prev" ]]; then
+      fp_now=$(corpus_fingerprint)
+      fp_then=$(grep -m1 '^FINGERPRINT=' "$prev" | cut -d= -f2)
+      if [[ -n "$fp_then" && "$fp_now" != "$fp_then" ]]; then
+        echo -e "${YELLOW}Note: the lab collection has changed since seed $SEL_SEED was last used,${NC}"
+        echo -e "${YELLOW}so this paper will NOT match that run. To replay it exactly:${NC}"
+        echo "  scripts/exam-mode.sh retake -s $SEL_SEED"
+        echo ""
+      fi
+    fi
+  fi
+
+  provision_and_launch fresh
+}
+
+# -- retake (replay a recorded paper exactly) ------------------
+
+cmd_retake() {
+  local kind="last" value="" minutes="" force=0
+  while [[ $# -gt 0 ]]; do
+    case "$1" in
+      -i) kind="index"; value="$2"; shift 2 ;;
+      -s) kind="seed";  value="$2"; shift 2 ;;
+      -t) minutes="$2"; shift 2 ;;
+      --force) force=1; shift ;;
+      last) kind="last"; shift ;;
+      *) echo "Unknown option: $1" >&2; exit 1 ;;
+    esac
+  done
+
+  local rec
+  rec=$(find_history_record "$kind" "$value" || true)
+  if [[ -z "$rec" || ! -f "$rec" ]]; then
+    echo -e "${RED}No recorded exam found for that reference.${NC}" >&2
+    echo "List what is available with: scripts/exam-mode.sh history" >&2
+    exit 1
+  fi
+
+  guard_existing_session "$force"
+
+  # shellcheck disable=SC1090
+  local REC_SEED REC_MIN REC_MODE REC_SAFE REC_Q REC_FP
+  REC_SEED=$(grep -m1 '^SEED=' "$rec" | cut -d= -f2)
+  REC_MIN=$(grep -m1 '^LIMIT_MINUTES=' "$rec" | cut -d= -f2)
+  REC_MODE=$(grep -m1 '^MODE=' "$rec" | cut -d= -f2)
+  REC_SAFE=$(grep -m1 '^SAFE=' "$rec" | cut -d= -f2)
+  REC_FP=$(grep -m1 '^FINGERPRINT=' "$rec" | cut -d= -f2)
+  REC_Q=$(grep -m1 '^QUESTIONS=' "$rec" | sed 's/^QUESTIONS="//; s/"$//')
+
+  # Drop any lab that no longer exists, rather than failing the whole retake.
+  local kept="" dropped=""
+  for d in $REC_Q; do
+    if [[ -d "$BASE_DIR/$d" ]]; then kept+="$d"$'\n'; else dropped+="$d "; fi
+  done
+  kept=$(echo "$kept" | grep -v '^$')
+  if [[ -z "$kept" ]]; then
+    echo -e "${RED}None of that paper's labs still exist.${NC}" >&2
+    exit 1
+  fi
+  if [[ -n "$dropped" ]]; then
+    echo -e "${YELLOW}These labs no longer exist and were dropped: $dropped${NC}"
+  fi
+
+  SEL_QUESTIONS="$kept"
+  SEL_SEED="$REC_SEED"
+  SEL_MINUTES="${minutes:-$REC_MIN}"
+  SEL_MODE="${REC_MODE:-weighted}"
+  SEL_SAFE="${REC_SAFE:-0}"
+
+  echo -e "${CYAN}Retaking the paper from $(basename "$rec").${NC}"
+  local prev_score
+  prev_score=$(grep -m1 '^SCORE=' "$rec" | cut -d= -f2 || true)
+  [[ -n "$prev_score" ]] && echo "Last time you scored ${prev_score}%."
+  if [[ -n "$REC_FP" && "$REC_FP" != "$(corpus_fingerprint)" ]]; then
+    echo -e "${YELLOW}(The labs themselves have changed since then, so scores are not"
+    echo -e "strictly comparable - the question LIST is identical.)${NC}"
+  fi
+  [[ -n "$minutes" ]] && echo "Clock overridden to ${minutes} minutes."
+  echo ""
+
+  provision_and_launch retake
+}
+
+# -- history --------------------------------------------------
+
+cmd_history() {
+  if [[ ! -d "$HISTORY_DIR" ]] || [[ -z "$(ls -A "$HISTORY_DIR" 2>/dev/null)" ]]; then
+    echo "No graded exams recorded yet."
+    echo "Sessions are archived when you run 'grade' or 'cleanup'."
+    return 0
+  fi
+  printf "  %-3s %-17s %-8s %-6s %-6s %s\n" "#" "WHEN" "SEED" "MINS" "SCORE" "QUESTIONS"
+  local i=0
+  for f in $(ls -1 "$HISTORY_DIR"/*.env | sort); do
+    i=$((i+1))
+    local when seed mins score nq
+    when=$(grep -m1 '^ARCHIVED_AT=' "$f" | cut -d= -f2)
+    seed=$(grep -m1 '^SEED=' "$f" | cut -d= -f2)
+    mins=$(grep -m1 '^LIMIT_MINUTES=' "$f" | cut -d= -f2)
+    score=$(grep -m1 '^SCORE=' "$f" | cut -d= -f2)
+    nq=$(grep -m1 '^QUESTIONS=' "$f" | sed 's/^QUESTIONS="//; s/"$//' | wc -w)
+    printf "  %-3s %-17s %-8s %-6s %-6s %s\n" "$i" "$when" "$seed" "$mins" "${score:-n/a}" "$nq"
+  done
+  echo ""
+  echo "Replay one exactly:  scripts/exam-mode.sh retake -i <#>"
+  echo "Most recent:         scripts/exam-mode.sh retake"
+  echo "Tighter clock:       scripts/exam-mode.sh retake -i <#> -t 45"
 }
 
 # -- status ---------------------------------------------------
@@ -597,9 +820,17 @@ for pct, dom, got, want in sorted(rows):
     echo -e "  ${RED}${BOLD}FAIL${NC}"
   fi
   echo ""
+  archive_session "$pct" >/dev/null
+
   echo "  Review solutions:  cat <question-dir>/SolutionNotes.bash"
   echo "  Tear down:         scripts/exam-mode.sh cleanup"
-  echo "  Same paper again:  scripts/exam-mode.sh start -s $SEED -t $LIMIT_MINUTES"
+  echo ""
+  echo "  Repeat this exact paper (replays the recorded question list):"
+  echo "    scripts/exam-mode.sh cleanup && scripts/exam-mode.sh retake"
+  echo "  Same paper, tighter clock:"
+  echo "    scripts/exam-mode.sh retake -t $(( LIMIT_MINUTES * 3 / 4 ))"
+  echo "  Regenerate from the seed instead (only matches while the labs are unchanged):"
+  echo "    $(replay_command "$SEED" "$LIMIT_MINUTES" "$MODE" "$SAFE")"
   echo ""
 
   [[ "$verdict" == "1" && $overtime -eq 0 ]] && exit 0 || exit 1
@@ -618,9 +849,11 @@ cmd_cleanup() {
       echo -e "${YELLOW}cleanup reported errors${NC}"
     fi
   done
+  archive_session >/dev/null
   rm -f "$SESSION" "$PAPER"
   echo ""
   echo -e "${GREEN}[OK] Exam session cleared.${NC}"
+  echo "Recorded for replay - repeat it with: scripts/exam-mode.sh retake"
 }
 
 # -- main -----------------------------------------------------
@@ -634,9 +867,11 @@ CMD="$1"; shift
 case "$CMD" in
   start)   cmd_start "$@" ;;
   plan)    cmd_plan "$@" ;;
+  retake)  cmd_retake "$@" ;;
+  history) cmd_history ;;
   status)  cmd_status ;;
   paper)   cmd_paper ;;
   grade)   cmd_grade ;;
   cleanup) cmd_cleanup ;;
-  *) echo "Unknown command: $CMD (expected start|plan|status|paper|grade|cleanup)" >&2; exit 1 ;;
+  *) echo "Unknown command: $CMD (expected start|plan|retake|history|status|paper|grade|cleanup)" >&2; exit 1 ;;
 esac

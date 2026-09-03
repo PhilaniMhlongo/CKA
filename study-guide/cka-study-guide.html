@@ -1279,7 +1279,9 @@ scripts/exam-mode.sh cleanup</pre>
 <p style="margin:2mm 0 0"><b>Rules for it to be worth anything:</b> phone away, one kubernetes.io tab only, no notes,
 no going over time. Afterwards, re-run <code class="inl">validate-question.sh</code> on every question you lost points on
 and read that lab's <code class="inl">SolutionNotes.bash</code> — that is the actual learning, not the sitting.
-Re-use the same seed (<code class="inl">-s 42</code>) a week later to measure improvement on identical questions.</p>
+To measure improvement on identical questions a week later, use
+<code class="inl">scripts/exam-mode.sh retake</code> — it replays the exact recorded paper. Re-running a seed is not
+equivalent: the seed is an input to selection, so the paper shifts if any lab is added or edited.</p>
 </div>
 
 <h3>10.2 Reading your score</h3>
