@@ -5,9 +5,15 @@ set -e
 kubectl create namespace nginx-static || true
 
 # Step 2: Create a TLS secret (self-signed)
+# Generate into the question's own working directory rather than the caller's
+# cwd - otherwise a private key is left lying in the repo root (and exam mode,
+# which provisions many labs from the repo root, litters it every run).
+WORKDIR="${WORKDIR:-$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)/tls-work}"
+mkdir -p "$WORKDIR"
 openssl req -x509 -nodes -days 365 -newkey rsa:2048 \
-  -keyout tls.key -out tls.crt -subj "/CN=ckaquestion.k8s.local"
-kubectl -n nginx-static create secret tls nginx-tls --cert=tls.crt --key=tls.key
+  -keyout "$WORKDIR/tls.key" -out "$WORKDIR/tls.crt" -subj "/CN=ckaquestion.k8s.local"
+kubectl -n nginx-static create secret tls nginx-tls \
+  --cert="$WORKDIR/tls.crt" --key="$WORKDIR/tls.key"
 
 # Step 3: Create ConfigMap with TLSv1.2 and TLSv1.3 enabled
 cat <<EOF | kubectl -n nginx-static apply -f -

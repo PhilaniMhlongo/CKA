@@ -38,6 +38,32 @@ before you commit an hour to it:
 scripts/exam-mode.sh plan --1hr -s 42
 ```
 
+## Repeating a paper
+
+Playgrounds are ephemeral, so re-sitting the same exam is a normal thing to want.
+Sessions are archived automatically when you `grade` or `cleanup`:
+
+```bash
+scripts/exam-mode.sh history        # past papers, seeds and scores
+scripts/exam-mode.sh retake         # repeat the most recent paper, exactly
+scripts/exam-mode.sh retake -i 2    # repeat archived exam #2
+scripts/exam-mode.sh retake -t 45   # same questions, tighter clock
+```
+
+`retake` replays the recorded question list, so it is exact. Re-running
+`start -s <seed>` is *not* a reliable way to repeat a paper — the seed is only
+an input to selection, and selection re-derives from whatever labs are on disk,
+so the paper shifts if the repo changes. `start` warns you when that has
+happened, but `retake` is the command you want.
+
+Since the history lives in `$CKA_EXAM_HOME` (default `~/.cka-exam`) and a
+Killercoda playground is wiped when it expires, copy it out if you want your
+scores to survive:
+
+```bash
+tar czf ~/cka-history.tgz -C ~ .cka-exam    # then download it from the file browser
+```
+
 ## Killercoda-specific notes
 
 **Do not use `--safe` here.** It exists for single-node clusters. On Killercoda
