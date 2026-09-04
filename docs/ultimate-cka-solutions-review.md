@@ -183,7 +183,33 @@ that gap, and `scripts/exam-mode.sh` weights papers to the current domain split.
 
 ---
 
-## 5. Corrections applied
+## 5. Additions made
+
+An enriched copy was produced by `scripts/enrich-cka-solutions-docx.py`, which runs the
+whole pipeline from the original document (the source `.docx` is paid third-party
+material and is deliberately not stored here — supply your own copy as the input).
+
+Added, on top of the corrections and the readability pass:
+
+| Addition | Detail |
+|---|---|
+| **How this mock exam is structured** | 20 questions / 2 hours, per-question weightage, auto-scoring, the 5 knowledge areas and their weights, and the 4-cluster + student-node model with the context/SSH commands. The original opens with no orientation at all. |
+| **This document versus the real weighting** | The two tables from §3 — its own section mix against the official weights, and its cluster spread — so the reader knows to compensate. |
+| **Question index** | All 53 questions with section, cluster and a one-line task summary, auto-generated from the document. |
+| **Appendix A** | Solutions for the 5 questions the document leaves unanswered, plus cross-references for the 2 that duplicate earlier ones. |
+| **Appendix B** | The 25 uncovered topics, each with working commands: etcd restore, kubeadm upgrade, certs, CSR→kubeconfig, static pods, kubelet config and NotReady nodes, Helm, Kustomize, Gateway API, HPA, PriorityClass, affinity, manual scheduling/Binding, PDB/drain, quotas, StatefulSets, default StorageClass, manual PV, ClusterRole aggregation, CRDs, `kubectl patch`, CNI, container runtime. |
+| **Appendix C** | The corrections, so a reader holding the original knows what changed. |
+
+Result: 794 → 1,388 non-empty paragraphs, 6 → 10 tables, 15 Heading 1 and 92 Heading 2
+entries. Schema validation passes, all 170 images byte-identical, and the only original
+text no longer present verbatim is the 14 corrected lines.
+
+One caveat on provenance: Appendices A and B are **newly written material**, not
+KodeKloud's. Appendix A's final entry (`green-deployment-cka15-trb`) gives a diagnostic
+procedure rather than a fix, because the document never records what that fault actually
+was and inventing one would be worse than saying so.
+
+## 6. Corrections applied
 
 A corrected copy of the document was produced with 14 text fixes:
 
